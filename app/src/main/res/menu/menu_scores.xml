@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.amsavarthan.trivia.MainActivity">
+
+    <item
+        android:id="@+id/action_account"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_account_circle_white_24dp"
+        android:title="Account"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_scores"
+        android:orderInCategory="200"
+        android:icon="@drawable/ic_assessment_white_24dp"
+        android:title="Score"
+        app:showAsAction="never" />
+
+</menu>

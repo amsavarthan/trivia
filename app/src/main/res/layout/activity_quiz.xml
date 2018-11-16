@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout android:id="@+id/main_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".QuizActivity"
+    xmlns:timer="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:background="#DD2424"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingTop="24dp">
+
+            <io.github.krtkush.lineartimer.LinearTimerView
+                android:id="@+id/timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="10dp"
+                timer:progressColor="@color/white"
+                timer:radius="5dp"
+                timer:strokeWidth="1dp" />
+
+            <TextView
+                android:id="@+id/question"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/viga"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="Here's your first question"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:background="#212121"
+            android:layout_weight="2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+
+            <ProgressBar
+                android:id="@+id/progressbar"
+                android:indeterminate="true"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_gravity="top"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Result Layout -->
+            <LinearLayout
+                android:id="@+id/result_layout"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:background="#212121"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/result"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="10dp"
+                    android:fontFamily="@font/viga"
+                    android:textSize="160sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+
+            </LinearLayout>
+
+            <!-- Error Layout -->
+            <LinearLayout
+                android:id="@+id/error_layout"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:background="#212121"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:src="@drawable/no_internet_connection"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp" />
+
+                <TextView
+                    android:textColor="@color/colorAccent"
+                    android:gravity="center"
+                    android:text="Oh shucks!"
+                    android:fontFamily="@font/viga"
+                    android:textSize="25sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="10dp"
+                    android:text="Some technical error has occured, Please check your internet connection and try again."
+                    android:fontFamily="@font/viga"
+                    android:textSize="18sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:visibility="gone"
+                    android:id="@+id/report_btn"
+                    android:onClick="sendReport"
+                    style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
+                    android:layout_marginTop="10dp"
+                    android:text="Report to developer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <!-- Multiple Choice Layout -->
+            <LinearLayout
+                android:id="@+id/multiple_layout"
+                android:orientation="vertical"
+                android:background="#212121"
+                android:paddingTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                >
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/a1"
+                    android:foreground="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:layout_margin="5dp"
+                    app:cardUseCompatPadding="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <View
+                            android:visibility="invisible"
+                            android:id="@+id/a1_check"
+                            android:background="#4caf50"
+                            android:layout_gravity="bottom"
+                            android:layout_width="match_parent"
+                            android:layout_height="5dp"/>
+
+                        <TextView
+                            android:id="@+id/a1_text"
+                            android:textColor="#212121"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/viga"
+                            android:padding="10dp"
+                            android:gravity="center"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </FrameLayout>
+
+                </android.support.v7.widget.CardView>
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/a2"
+                    android:foreground="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:layout_margin="5dp"
+                    app:cardUseCompatPadding="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <View
+                            android:visibility="invisible"
+                            android:id="@+id/a2_check"
+                            android:background="#4caf50"
+                            android:layout_gravity="bottom"
+                            android:layout_width="match_parent"
+                            android:layout_height="5dp"/>
+
+                        <TextView
+                            android:id="@+id/a2_text"
+                            android:textSize="18sp"
+                            android:textColor="#212121"
+                            android:fontFamily="@font/viga"
+                            android:padding="10dp"
+                            android:gravity="center"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </FrameLayout>
+
+                </android.support.v7.widget.CardView>
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/a3"
+                    android:foreground="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:layout_margin="5dp"
+                    app:cardUseCompatPadding="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <View
+                            android:visibility="invisible"
+                            android:id="@+id/a3_check"
+                            android:background="#4caf50"
+                            android:layout_gravity="bottom"
+                            android:layout_width="match_parent"
+                            android:layout_height="5dp"/>
+
+                        <TextView
+                            android:id="@+id/a3_text"
+                            android:textSize="18sp"
+                            android:textColor="#212121"
+                            android:fontFamily="@font/viga"
+                            android:padding="10dp"
+                            android:gravity="center"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </FrameLayout>
+
+                </android.support.v7.widget.CardView>
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/a4"
+                    android:foreground="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:layout_margin="5dp"
+                    app:cardUseCompatPadding="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <View
+                            android:visibility="invisible"
+                            android:id="@+id/a4_check"
+                            android:background="#4caf50"
+                            android:layout_gravity="bottom"
+                            android:layout_width="match_parent"
+                            android:layout_height="5dp"/>
+
+                        <TextView
+                            android:id="@+id/a4_text"
+                            android:textSize="18sp"
+                            android:textColor="#212121"
+                            android:fontFamily="@font/viga"
+                            android:padding="10dp"
+                            android:gravity="center"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </FrameLayout>
+
+                </android.support.v7.widget.CardView>
+
+            </LinearLayout>
+
+            <!-- Boolean Layout -->
+            <LinearLayout
+                android:id="@+id/boolean_layout"
+                android:visibility="gone"
+                android:orientation="horizontal"
+                android:background="#212121"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                >
+
+                <FrameLayout
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+
+                    <View
+                        android:visibility="gone"
+                        android:id="@+id/t_check"
+                        android:background="#4caf50"
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp"/>
+
+                    <TextView
+                        android:id="@+id/true_text"
+                        android:foreground="?selectableItemBackground"
+                        android:focusable="true"
+                        android:clickable="true"
+                        android:fontFamily="@font/viga"
+                        android:text="TRUE"
+                        android:textSize="22sp"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                </FrameLayout>
+
+                <View
+                    android:background="#313131"
+                    android:layout_width="0.5dp"
+                    android:layout_height="match_parent"/>
+
+                <FrameLayout
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+
+                    <View
+                        android:visibility="gone"
+                        android:id="@+id/f_check"
+                        android:background="#4caf50"
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp"/>
+
+                    <TextView
+                        android:id="@+id/false_text"
+                        android:foreground="?selectableItemBackground"
+                        android:focusable="true"
+                        android:clickable="true"
+                        android:fontFamily="@font/viga"
+                        android:gravity="center"
+                        android:text="FALSE"
+                        android:textSize="22sp"
+                        android:textColor="@color/white"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:onClick="checkAnswer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:padding="16dp"
+        app:backgroundTint="#DD2525"
+        android:src="@drawable/ic_done_white_24dp"
+        android:layout_margin="16dp"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_retry"
+        android:onClick="checkNetwork"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:padding="16dp"
+        android:src="@drawable/ic_retry_black_24dp"
+        android:layout_margin="16dp"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_close"
+        android:onClick="completeQuiz"
+        app:backgroundTint="#689F38"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:padding="16dp"
+        android:src="@drawable/ic_done_white_24dp"
+        android:layout_margin="16dp"/>
+
+</android.support.design.widget.CoordinatorLayout>

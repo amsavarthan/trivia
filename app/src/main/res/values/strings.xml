@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Trivia</string>
+    <string name="action_settings">Settings</string>
+    <string name="status_exception_error">%1$s (status %2$d). %3$s.</string>
+    <string name="sign_in_why">Sign in to share your score with your friends and sync across your devices.</string>
+    <string name="you_are_signed_in">You are signed in as %1$s.</string>
+    <string name="sign_out">Sign out</string>
+    <string name="sign_in_to_upload_this_score">Sign in now to upload this score, save your achievements and share your progress with friends.</string>
+    <string name="players_exception">There was an issue communicating with players.</string>
+    <string name="signin_other_error">There was an issue with sign in.  Please try again later.</string>
+    <string name="title_activity_scores">Scores</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_3">Tab 3</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="played_time">Played %s</string>
+    <string name="total_questions_asked">Total questions asked : %s</string>
+    <string name="friend_state">It seems that %s hasn\'t played any game yet.</string>
+    <string name="points">%s Points</string>
+    <string name="user_state">It seems that you haven\'t played any game, Play to view your scores here.</string>
+</resources>

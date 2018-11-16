@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/layout"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:paddingTop="24dp"
+    android:background="#DD2322"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StartQuizActivity">
+
+    <TextView
+        android:id="@+id/text"
+        android:textSize="22sp"
+        android:padding="10dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+        android:gravity="center_horizontal"
+        android:fontFamily="@font/viga"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/category_image"
+        android:padding="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:visibility="invisible"
+        android:onClick="onFabClick"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="16dp"
+        android:padding="16dp"
+        android:src="@drawable/ic_play_arrow_black_24dp"
+        app:backgroundTint="@color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>
