@@ -1,18 +1,30 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.amsavarthan.trivia.MainActivity">
+    tools:context="com.amsavarthan.game.trivia.MainActivity">
 
     <item
         android:id="@+id/action_account"
         android:orderInCategory="100"
         android:icon="@drawable/ic_account_circle_white_24dp"
-        android:title="Account Info"
+        android:title="@string/account_info"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_generate"
         android:orderInCategory="200"
-        android:title="Reset Token"
+        android:title="@string/reset_token"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_intro"
+        android:orderInCategory="300"
+        android:title="@string/show_intro"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="400"
+        android:title="@string/about"
         app:showAsAction="never" />
 
 </menu>

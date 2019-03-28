@@ -18,4 +18,8 @@
     <string name="friend_state">It seems that %s hasn\'t played any game yet.</string>
     <string name="points">%s Points</string>
     <string name="user_state">It seems that you haven\'t played any game, Play to view your scores here.</string>
+    <string name="account_info">Account Info</string>
+    <string name="reset_token">Reset Token</string>
+    <string name="about">About</string>
+    <string name="show_intro">Show Intro</string>
 </resources>
