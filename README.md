@@ -1,4 +1,7 @@
 # Trivia
+
+<img src="https://github.com/lvamsavarthan/Trivia/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_web.png" height="200" width="200">
+
 [![Trivia](https://forthebadge.com/images/badges/built-by-developers.svg)](https://lvamsavarthan.github.io/lvstore)
 [![Trivia](https://forthebadge.com/images/badges/built-with-love.svg)](https://lvamsavarthan.github.io/lvstore)
 [![Trivia](https://forthebadge.com/images/badges/built-for-android.svg)](https://lvamsavarthan.github.io/lvstore)
