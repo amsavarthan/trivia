@@ -4,7 +4,8 @@
 [![Trivia](https://forthebadge.com/images/badges/built-for-android.svg)](https://lvamsavarthan.github.io/lvstore)
 
 <p align="left">
-<a href="https://play.google.com/store/apps/details?id=com.amsavarthan.game.trivia"><img src="https://cdn.rawgit.com/steverichey/google-play-badge-svg/master/img/en_get.svg"></a>
+<a href="https://play.google.com/store/apps/details?id=com.amsavarthan.game.trivia"><img src="https://cdn.rawgit.com/steverichey/google-play-badge-svg/master/img/en_get.svg" width="30%"
+></a>
 </p>
 
 ## If you like this project please consider donating
