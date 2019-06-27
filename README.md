@@ -3,6 +3,10 @@
 [![Trivia](https://forthebadge.com/images/badges/built-with-love.svg)](https://lvamsavarthan.github.io/lvstore)
 [![Trivia](https://forthebadge.com/images/badges/built-for-android.svg)](https://lvamsavarthan.github.io/lvstore)
 
+<p align="left">
+<a href="https://play.google.com/store/apps/details?id=com.amsavarthan.game.trivia"><img src="https://cdn.rawgit.com/steverichey/google-play-badge-svg/master/img/en_get.svg"></a>
+</p>
+
 ## If you like this project please consider donating
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UF2TDFHZAHELS&source=url
