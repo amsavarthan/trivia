@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.multidex.MultiDex;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.amsavarthan.game.trivia.models.Category;
@@ -31,6 +33,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import shortbread.Shortbread;
 import shortbread.Shortcut;
@@ -197,6 +200,14 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent1 = new Intent(this,AppRepeatIntro.class);
                 startActivity(intent1);
                 overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
+
+                return true;
+
+            case R.id.action_policy:
+
+                Intent i=new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse("https://lvamsavarthan.github.io/lvstore/trivia_privacy_policy.html"));
+                startActivity(i);
 
                 return true;
 

@@ -53,4 +53,12 @@ public class About extends AppCompatActivity {
         view.startAnimation(AnimationUtils.loadAnimation(this,R.anim.shake_view));
 
     }
+
+    public void openGooglePlay(View view) {
+
+        Intent i=new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse("https://play.google.com/store/apps/dev?id=8738176098315595821"));
+        startActivity(i);
+
+    }
 }

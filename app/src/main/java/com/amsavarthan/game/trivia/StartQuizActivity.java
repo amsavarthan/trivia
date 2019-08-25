@@ -18,8 +18,10 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.amsavarthan.game.trivia.models.Category;
 import com.bumptech.glide.Glide;
 
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class StartQuizActivity extends AppCompatActivity {
@@ -116,6 +118,7 @@ public class StartQuizActivity extends AppCompatActivity {
 
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,6 +143,7 @@ public class StartQuizActivity extends AppCompatActivity {
         fab.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_up));
         fab.show();
 
+
     }
 
     @Override
@@ -152,14 +156,23 @@ public class StartQuizActivity extends AppCompatActivity {
 
         new MaterialDialog.Builder(this)
                 .title("Start Quiz")
-                .content("Select the number of questions to ask")
-                .items(R.array.number)
-                .itemsCallbackSingleChoice(0, (dialog, itemView, which, text) -> {
-                    QuizActivity.startActivity(view.getContext(),category_id,category_name,bg_color,image,text.toString());
-                    overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
+                .content("Choose difficulty")
+                .items(R.array.difficulty)
+                .itemsCallbackSingleChoice(0, (d_dialog, d_itemView, d_which, d_text) -> {
+                    new MaterialDialog.Builder(this)
+                            .title("Start Quiz")
+                            .content("Select the number of questions to ask")
+                            .items(R.array.number)
+                            .itemsCallbackSingleChoice(0, (dialog, itemView, which, text) -> {
+                                QuizActivity.startActivity(view.getContext(),category_id,category_name,bg_color,image,text.toString(),d_text.toString());
+                                overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
+                                return true;
+                            })
+                            .positiveText("Start")
+                            .show();
                     return true;
                 })
-                .positiveText("Start")
+                .positiveText("Next")
                 .show();
 
     }
