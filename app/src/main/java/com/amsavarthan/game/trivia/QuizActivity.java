@@ -9,11 +9,17 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
+import androidx.cardview.widget.CardView;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -25,7 +31,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.amsavarthan.game.trivia.models.BooleanQuestion;
 import com.amsavarthan.game.trivia.models.MultipleQuestion;
@@ -42,19 +47,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PlayGamesAuthProvider;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.json.JSONArray;
@@ -105,6 +101,7 @@ public class QuizActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseFirestore mFirestore;
     private ProgressDialog mDialog;
+    private InterstitialAd interstitialAd;
 
     public static void startActivity(@NonNull Context context, String id, String category, String color, String image,String max,String difficulty){
         Intent intent=new Intent(context,QuizActivity.class)
@@ -132,6 +129,14 @@ public class QuizActivity extends AppCompatActivity {
                 .requestProfile()
                 .build();
 
+        MobileAds.initialize(this);
+
+        AdView adView=findViewById(R.id.adView);
+        adView.loadAd(new AdRequest.Builder().build());
+
+        interstitialAd=new InterstitialAd(this);
+        interstitialAd.setAdUnitId(getString(R.string.interstitial_id_1));
+        interstitialAd.loadAd(new AdRequest.Builder().build());
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
@@ -418,6 +423,11 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(interstitialAd.isLoaded()){
+            interstitialAd.show();
+        }else{
+            Log.d("TAG","Ad failed to load");
+        }
     }
 
     public void checkNetwork(View view) {
@@ -429,7 +439,7 @@ public class QuizActivity extends AppCompatActivity {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("message/rfc822");
         i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"amsavarthan.a@gmail.com"});
-        i.putExtra(Intent.EXTRA_SUBJECT, "Trivia app report : "+ Build.MODEL+" (SDK:"+Build.VERSION.SDK_INT+")");
+        i.putExtra(Intent.EXTRA_SUBJECT, "Trivia "+BuildConfig.VERSION_NAME+" app bug report : "+ Build.MODEL+" (SDK:"+Build.VERSION.SDK_INT+")");
         i.putExtra(Intent.EXTRA_TEXT   , "Log: "+full_error_log);
         try {
             startActivity(Intent.createChooser(i, "Send mail using..."));
@@ -1244,6 +1254,7 @@ public class QuizActivity extends AppCompatActivity {
         }
 
     }
+
 
 
 }

@@ -3,10 +3,9 @@ package com.amsavarthan.game.trivia;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 public class About extends AppCompatActivity {
@@ -41,7 +40,7 @@ public class About extends AppCompatActivity {
 
         Intent email=new Intent(Intent.ACTION_SEND);
         email.putExtra(Intent.EXTRA_EMAIL,new String[]{"amsavarthan.a@gmail.com"});
-        email.putExtra(Intent.EXTRA_SUBJECT,"Sent from Trivia v1.0.0 ("+ Build.BRAND+", "+Build.VERSION.SDK_INT+")");
+        email.putExtra(Intent.EXTRA_SUBJECT,"Sent from Trivia "+BuildConfig.VERSION_NAME+" ("+ Build.BRAND+", "+Build.VERSION.SDK_INT+")");
         email.putExtra(Intent.EXTRA_TEXT,"");
         email.setType("message/rfc822");
         startActivity(Intent.createChooser(email,"Send mail using..."));

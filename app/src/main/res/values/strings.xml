@@ -21,4 +21,13 @@
     <string name="web_client_id">171246766943-gpcjg30bhpr58niar58fu85utu8k6l8c.apps.googleusercontent.com</string>
     <string name="app_id">171246766943</string>
 
+    <string name="ads_app_id">ca-app-pub-9303426545367298~2223386584</string>
+
+    <string name="banner_id_1">ca-app-pub-9303426545367298/7186872997</string>
+    <string name="banner_id_2">ca-app-pub-9303426545367298/7681697018</string>
+    <string name="interstitial_id_1">ca-app-pub-9303426545367298/1934546319</string>
+
+    <string name="test_banner_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="test_interstitial_id">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="banner_id_3">ca-app-pub-9303426545367298/7109785710</string>
 </resources>

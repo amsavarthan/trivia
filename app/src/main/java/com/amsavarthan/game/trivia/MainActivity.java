@@ -6,18 +6,17 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.multidex.MultiDex;
-import android.support.v7.app.AppCompatActivity;
+import androidx.multidex.MultiDex;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.amsavarthan.game.trivia.models.Category;
@@ -27,13 +26,15 @@ import com.amsavarthan.game.trivia.utils.Constants;
 import com.amsavarthan.game.trivia.utils.DBManager;
 import com.amsavarthan.game.trivia.utils.DatabaseHelper;
 import com.amsavarthan.game.trivia.utils.HttpHandler;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import shortbread.Shortbread;
 import shortbread.Shortcut;
@@ -62,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         MultiDex.install(this);
+
+        MobileAds.initialize(this);
+        AdView adView=findViewById(R.id.adView);
+        adView.loadAd(new AdRequest.Builder().build());
 
         sharedPreferences=getSharedPreferences("Trivia",MODE_PRIVATE);
 

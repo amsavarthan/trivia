@@ -1,6 +1,6 @@
 package com.amsavarthan.game.trivia.utils;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
