@@ -1,13 +1,13 @@
 # Trivia
 
-<img src="https://github.com/lvamsavarthan/Trivia/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_web.png" height="200" width="200">
+<img src="https://github.com/amsavarthan/trivia/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_web.png" height="200" width="200">
 
 Trivia is an online quiz game which has more than 10 categories to play. All the question are taken from www.opentdb.com (API)
 <br>
 
-[![Trivia](https://forthebadge.com/images/badges/built-by-developers.svg)](https://lvamsavarthan.github.io/lvstore)
-[![Trivia](https://forthebadge.com/images/badges/built-with-love.svg)](https://lvamsavarthan.github.io/lvstore)
-[![Trivia](https://forthebadge.com/images/badges/built-for-android.svg)](https://lvamsavarthan.github.io/lvstore)
+[![Trivia](https://forthebadge.com/images/badges/built-by-developers.svg)](https://amsavarthan.github.io)
+[![Trivia](https://forthebadge.com/images/badges/built-with-love.svg)](https://amsavarthan.github.io)
+[![Trivia](https://forthebadge.com/images/badges/built-for-android.svg)](https://amsavarthan.github.io)
 
 
 
@@ -22,16 +22,16 @@ Trivia is an online quiz game which has more than 10 categories to play. All the
 <table>
 
   <tr>
-     <td><img src="https://github.com/lvamsavarthan/Trivia/blob/master/images/1.png"></td>
-     <td><img src="https://github.com/lvamsavarthan/Trivia/blob/master/images/2.png"></td>
+     <td><img src="https://github.com/amsavarthan/trivia/blob/master/images/1.png"></td>
+     <td><img src="https://github.com/amsavarthan/trivia/blob/master/images/2.png"></td>
   </tr>
   <tr>
-     <td><img src="https://github.com/lvamsavarthan/Trivia/blob/master/images/3.png"></td>
-     <td><img src="https://github.com/lvamsavarthan/Trivia/blob/master/images/4.png"></td>
+     <td><img src="https://github.com/amsavarthan/trivia/blob/master/images/3.png"></td>
+     <td><img src="https://github.com/amsavarthan/trivia/blob/master/images/4.png"></td>
   </tr>
   <tr>
-     <td><img src="https://github.com/lvamsavarthan/Trivia/blob/master/images/5.png"></td>
-     <td><img src="https://github.com/lvamsavarthan/Trivia/blob/master/images/6.png"></td>
+     <td><img src="https://github.com/amsavarthan/trivia/blob/master/images/5.png"></td>
+     <td><img src="https://github.com/amsavarthan/trivia/blob/master/images/6.png"></td>
   
 </table>
 
