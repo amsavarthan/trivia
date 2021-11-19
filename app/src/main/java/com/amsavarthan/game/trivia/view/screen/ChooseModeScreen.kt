@@ -1,6 +1,5 @@
 package com.amsavarthan.game.trivia.view.screen
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -17,64 +16,48 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.amsavarthan.game.trivia.ui.navigation.Screen
 
-data class GameMode(
+private data class GameMode(
     val emoji: String,
     val title: String,
     val description: String,
+    val route: String,
 )
 
-val gameModes = listOf(
+private val gameModes = listOf(
     GameMode(
         emoji = "⚡️",
         title = "Quick Mode",
         description = "Play a game right away on category chosen randomly.",
+        route = Screen.QUICK_MODE.route
     ),
     GameMode(
         emoji = "🤠",
         title = "Casual Mode",
         description = "You get to choose the category of your own choice.",
+        route = Screen.CASUAL_MODE.route
     ),
     GameMode(
         emoji = "🤝",
         title = "Duel Mode",
         description = "Compete and have fun playing with your friends.",
+        route = Screen.DUEL_MODE.route
     ),
 )
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun ChooseModeScreen(onBack: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            FilledTonalButton(
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(top = 24.dp, bottom = 16.dp),
-                onClick = onBack,
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Filled.ChevronLeft, contentDescription = "Go back")
-                    Text(text = "CHOOSE MODE")
-                }
-            }
-            gameModes.forEachIndexed { index, item ->
-                GameMode(item) {
-
-                }
+fun ChooseModeScreen(navController: NavController) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        gameModes.forEach { item ->
+            GameMode(item) {
+                navController.navigate(item.route)
             }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

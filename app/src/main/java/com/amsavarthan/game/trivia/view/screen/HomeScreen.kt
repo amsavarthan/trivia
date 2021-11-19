@@ -52,12 +52,11 @@ fun HomeScreen() {
         AnimatedContainer(
             targetState = buttonState,
             onExpandAction = { buttonState = ButtonState.EXPANDED },
-            onCollapseAction = { buttonState = ButtonState.NORMAL },
             collapsedContent = { CollapsedContent() },
             expandedContent = {
-                ChooseModeScreen(
-                    onBack = { buttonState = ButtonState.NORMAL }
-                )
+                StartGameScreen(onBack = {
+                    buttonState = ButtonState.NORMAL
+                })
             },
         )
     }
@@ -82,11 +81,12 @@ private fun BoxScope.AnimatedContainer(
     targetState: ButtonState,
     expandedContent: @Composable () -> Unit,
     collapsedContent: @Composable () -> Unit,
-    onCollapseAction: () -> Unit,
     onExpandAction: () -> Unit,
 ) {
-    val transition =
-        updateTransition(targetState = targetState, label = "Play Now Button Transition")
+    val transition = updateTransition(
+        targetState,
+        label = "Play Now Button Transition"
+    )
 
     val padding by transition.animateDp(label = "Play Now Button Padding") { state ->
         when (state) {
@@ -156,7 +156,6 @@ private fun BoxScope.AnimatedContainer(
         }
     }
 
-    BackHandler(onBack = onCollapseAction)
 
 }
 
