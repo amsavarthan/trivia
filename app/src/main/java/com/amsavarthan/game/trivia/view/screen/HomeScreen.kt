@@ -1,6 +1,5 @@
 package com.amsavarthan.game.trivia.view.screen
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
