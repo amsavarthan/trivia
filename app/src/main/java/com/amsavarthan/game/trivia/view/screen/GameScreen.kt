@@ -12,10 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -43,6 +40,7 @@ fun GameScreen(
     val data by viewModel.currentQuestion.collectAsState()
     val (questionNumber, questionData) = data
 
+    var showDialog by remember { mutableStateOf(false) }
     var selectedAnswerIndex by remember { mutableStateOf(-1) }
     var answers by remember { mutableStateOf(emptyList<String>()) }
 
@@ -111,7 +109,28 @@ fun GameScreen(
     }
 
     BackHandler {
+        showDialog = true
+    }
 
+    if (showDialog) {
+        AlertDialog(onDismissRequest = { showDialog = false },
+            title = { Text(text = "Stop Playing") },
+            text = { Text(text = "Are you sure do want to stop playing? You will lose all your progress.") },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.clearQuestions()
+                    showDialog = false
+                    navController.navigateUp()
+                }) {
+                    Text(text = "Yes")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDialog = false }) {
+                    Text(text = "No")
+                }
+            }
+        )
     }
 
 }
@@ -201,12 +220,13 @@ private fun ColumnScope.Timer(
     LaunchedEffect(restartFlag) {
         while (progressValue > 0f) {
             progressValue -= 0.05f
-            delay(1000)
+            delay(500)
         }
 
         onTimeout()
+        delay(800)
         if (viewModel.nextQuestion()) {
-            progressValue = 1.05f
+            progressValue = 1.1f
             restartFlag = !restartFlag
             return@LaunchedEffect
         }

@@ -69,6 +69,14 @@ class GameScreenViewModel @Inject constructor(
         _hasQuestionsLoaded.emit(true)
     }
 
+    fun clearQuestions() {
+        _hasQuestionsLoaded.value = false
+        _currentQuestion.value = 0 to null
+        questions = emptyList()
+        currentQuestionIndex = 0
+        _gameResult.clear()
+    }
+
     fun getQuestions(categoryId: Int) {
         viewModelScope.launch {
             datastore.preferencesFlow.collectLatest { token ->
@@ -79,8 +87,19 @@ class GameScreenViewModel @Inject constructor(
                     if (!response.isSuccessful) return@collectLatest
 
                     val apiResponse = response.body()
-                    if (apiResponse?.responseCode == 4) resetSession(token).join()
-                    updateData(apiResponse).join()
+
+                    when (apiResponse?.responseCode) {
+                        3 -> {
+                            initSession().join()
+                            getQuestions(categoryId)
+                        }
+                        4 -> {
+                            resetSession(token).join()
+                            getQuestions(categoryId)
+                        }
+                        else -> updateData(apiResponse).join()
+                    }
+
                 } catch (e: NoConnectivityException) {
                     e.printStackTrace()
                 }
@@ -96,17 +115,13 @@ class GameScreenViewModel @Inject constructor(
     }
 
     fun calculateScore(answer: String?) {
-        viewModelScope.launch {
-            currentQuestion.collectLatest { (_, question) ->
-                _gameResult.add(
-                    GameResult(
-                        question,
-                        answer,
-                        isCorrect = answer != null && answer == question?.correctAnswer
-                    )
-                )
-            }
-        }
+        val question = questions[currentQuestionIndex]
+        val gameResult = GameResult(
+            question,
+            answer,
+            isCorrect = answer != null && answer == question.correctAnswer
+        )
+        _gameResult.add(gameResult)
     }
 
     private fun String.fromHtml() = Html.fromHtml(

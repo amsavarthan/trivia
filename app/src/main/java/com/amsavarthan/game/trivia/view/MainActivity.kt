@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(
                     navController = navController,
-                    startDestination = Screens.RESULT_SCREEN.route
+                    startDestination = Screens.HOME_SCREEN.route
                 ) {
                     composable(Screens.HOME_SCREEN.route) {
                         HomeScreen(homeScreenViewModel, navController)
@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
                         GameScreen(gameScreenViewModel, navController)
                     }
                     composable(Screens.RESULT_SCREEN.route) {
-                        ResultScreen(gameScreenViewModel)
+                        ResultScreen(gameScreenViewModel, navController)
                     }
                     composable(
                         Screens.COUNT_DOWN.route,
@@ -59,7 +59,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-//        gameScreenViewModel.initSession()
     }
 
 }
