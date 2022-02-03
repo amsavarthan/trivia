@@ -40,10 +40,20 @@
         <entry key="../../../../../../layout/compose-model-1637403921933.xml" value="0.25" />
         <entry key="../../../../../../layout/compose-model-1637496705142.xml" value="0.1" />
         <entry key="../../../../../../layout/compose-model-1637497176471.xml" value="0.17222222222222222" />
+        <entry key="../../../../../../layout/compose-model-1643349292447.xml" value="0.2015993265993266" />
+        <entry key="../../../../../../layout/compose-model-1643357101180.xml" value="0.20244107744107745" />
+        <entry key="../../../../../../layout/compose-model-1643443105441.xml" value="0.1675925925925926" />
+        <entry key="../../../../../../layout/compose-model-1643466798329.xml" value="0.20244107744107745" />
+        <entry key="../../../../../../layout/compose-model-1643616489937.xml" value="0.2015993265993266" />
+        <entry key="../../../../../../layout/compose-model-1643645946712.xml" value="0.1" />
+        <entry key="../../../../../../layout/compose-model-1643651329051.xml" value="0.1527777777777778" />
+        <entry key="../../../../../../layout/compose-model-1643651756321.xml" value="0.1527777777777778" />
+        <entry key="../../../../../../layout/compose-model-1643816056838.xml" value="0.10390625" />
+        <entry key="../../../../../../layout/compose-model-1643818761534.xml" value="0.25" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
