@@ -3,7 +3,7 @@ package com.amsavarthan.game.trivia.data.models
 data class Category(
     val emoji: String,
     val name: String,
-    val code: Int,
+    val id: Int,
     val forPro: Boolean = false
 )
 

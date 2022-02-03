@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.view.screen
+package com.amsavarthan.game.trivia.view.screen.home
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -19,9 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.amsavarthan.game.trivia.data.models.GameMode
 import com.amsavarthan.game.trivia.data.models.gameModes
+import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 
 @Composable
-fun ChooseModeScreen(navController: NavController) {
+fun ChooseModeScreen(
+    viewModel: HomeScreenViewModel,
+    navController: NavController
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -30,6 +34,7 @@ fun ChooseModeScreen(navController: NavController) {
     ) {
         gameModes.forEach { item ->
             GameMode(item) {
+                viewModel.resetIndices()
                 navController.navigate(item.route)
             }
         }

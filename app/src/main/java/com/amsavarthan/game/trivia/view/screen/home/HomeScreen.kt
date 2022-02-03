@@ -1,10 +1,7 @@
-package com.amsavarthan.game.trivia.view.screen
+package com.amsavarthan.game.trivia.view.screen.home
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -16,7 +13,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +25,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsHeight
 
@@ -35,9 +36,11 @@ enum class ButtonState {
 }
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: HomeScreenViewModel, parentNavController: NavController) {
+
     val scrollState = rememberScrollState()
-    var buttonState by remember { mutableStateOf(ButtonState.NORMAL) }
+    val buttonState by viewModel.buttonState.collectAsState()
+
     Box(modifier = Modifier.fillMaxHeight()) {
         Column(
             modifier = Modifier
@@ -50,11 +53,13 @@ fun HomeScreen() {
         }
         AnimatedContainer(
             targetState = buttonState,
-            onExpandAction = { buttonState = ButtonState.EXPANDED },
+            onExpandAction = {
+                viewModel.updateButtonState(ButtonState.EXPANDED)
+            },
             collapsedContent = { CollapsedContent() },
             expandedContent = {
-                StartGameScreen(onBack = {
-                    buttonState = ButtonState.NORMAL
+                StartGameScreen(viewModel, parentNavController, onBack = {
+                    viewModel.updateButtonState(ButtonState.NORMAL)
                 })
             },
         )
@@ -93,25 +98,35 @@ private fun BoxScope.AnimatedContainer(
             ButtonState.EXPANDED -> 0.dp
         }
     }
-    val height by transition.animateDp(label = "Play Now Button Height") { state ->
+
+    val height by transition.animateDp(
+        label = "Play Now Button Height",
+        transitionSpec = { if (initialState == ButtonState.NORMAL) tween(400) else tween(350) }) { state ->
         when (state) {
             ButtonState.NORMAL -> 100.dp
             ButtonState.EXPANDED -> LocalConfiguration.current.screenHeightDp.dp
         }
     }
+
     val maxWidth by transition.animateDp(label = "Play Now Button MaxWidth") { state ->
         when (state) {
             ButtonState.NORMAL -> 500.dp
             ButtonState.EXPANDED -> Dp.Unspecified
         }
     }
+
     val corners by transition.animateFloat(label = "Play Now Button Corners") { state ->
         when (state) {
             ButtonState.NORMAL -> 100f
             ButtonState.EXPANDED -> 0f
         }
     }
-    val color by transition.animateColor(label = "Play Now Button Background Color") { state ->
+
+    val color by transition.animateColor(
+        label = "Play Now Button Background Color",
+        transitionSpec = {
+            if (initialState == ButtonState.EXPANDED) tween(delayMillis = 100) else spring()
+        }) { state ->
         when (state) {
             ButtonState.NORMAL -> MaterialTheme.colorScheme.primary
             ButtonState.EXPANDED -> MaterialTheme.colorScheme.background
@@ -121,9 +136,9 @@ private fun BoxScope.AnimatedContainer(
     Surface(
         modifier = Modifier
             .align(Alignment.BottomCenter)
-            .height(height)
             .widthIn(max = maxWidth)
             .fillMaxWidth()
+            .height(height)
             .navigationBarsPadding()
             .padding(padding),
         onClick = onExpandAction,

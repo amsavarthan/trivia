@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.view.screen.modes
+package com.amsavarthan.game.trivia.view.screen.home.modes
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
@@ -25,19 +25,23 @@ import com.amsavarthan.game.trivia.data.models.Category
 import com.amsavarthan.game.trivia.data.models.categories
 import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
 import com.amsavarthan.game.trivia.ui.common.anim.SlideOnChange
-import com.amsavarthan.game.trivia.ui.navigation.Screen
+import com.amsavarthan.game.trivia.ui.navigation.Screens
+import com.amsavarthan.game.trivia.ui.navigation.createRoute
+import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 
 @Composable
-fun CasualModeConfig(navController: NavController) {
+fun CasualModeConfig(
+    viewModel: HomeScreenViewModel,
+    navController: NavController
+) {
 
-    var selectedIndex by remember { mutableStateOf(0) }
+    val selectedIndex by viewModel.casualModeSelectedIndex.collectAsState()
     var triggerStartGame by remember { mutableStateOf(false) }
 
     LaunchedEffect(triggerStartGame) {
-        if (triggerStartGame) {
-            navController.navigate(Screen.COUNT_DOWN.route) {
-                launchSingleTop = true
-            }
+        if (!triggerStartGame) return@LaunchedEffect
+        navController.navigate(Screens.COUNT_DOWN.createRoute(viewModel.categoryId)) {
+            launchSingleTop = true
         }
     }
 
@@ -48,7 +52,7 @@ fun CasualModeConfig(navController: NavController) {
             SelectedCategoryDetail(selectedIndex, triggerStartGame)
             CategoryList(selectedIndex, triggerStartGame) { clickedIndex ->
                 triggerStartGame = (selectedIndex == clickedIndex)
-                selectedIndex = clickedIndex
+                viewModel.updateCasualModeSelectedIndex(clickedIndex)
             }
         }
     }

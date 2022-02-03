@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.view.screen.modes
+package com.amsavarthan.game.trivia.view.screen.home.modes
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
@@ -18,15 +18,26 @@ import androidx.navigation.NavController
 import com.amsavarthan.game.trivia.data.models.categories
 import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
 import com.amsavarthan.game.trivia.ui.common.anim.SlideOnChange
-import com.amsavarthan.game.trivia.ui.navigation.Screen
+import com.amsavarthan.game.trivia.ui.navigation.Screens
+import com.amsavarthan.game.trivia.ui.navigation.createRoute
+import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun QuickModeConfig(navController: NavController) {
+fun QuickModeConfig(
+    viewModel: HomeScreenViewModel,
+    navController: NavController
+) {
 
-    var lookingIndex by remember { mutableStateOf(Random.nextInt(categories.size)) }
+    val selectedIndex by viewModel.quickModeSelectedIndex.collectAsState()
+
+    var lookingIndex by remember {
+        mutableStateOf(
+            selectedIndex ?: Random.nextInt(categories.size)
+        )
+    }
     var selectionStopped by remember { mutableStateOf(false) }
 
     val alpha by animateFloatAsState(
@@ -36,15 +47,21 @@ fun QuickModeConfig(navController: NavController) {
         }
     )
 
-    LaunchedEffect(false) {
-        selectionStopped = false
+    LaunchedEffect(selectedIndex) {
+        if (selectedIndex != null) {
+            selectionStopped = true
+            return@LaunchedEffect
+        }
+
         delay(200)
         val repeatCount = Random.nextInt(5, 11)
         repeat(repeatCount) {
             lookingIndex = lookingIndex.inc().mod(categories.size)
             delay(250)
         }
+
         selectionStopped = true
+        viewModel.updateQuickModeSelectedIndex(lookingIndex)
     }
 
     Column(
@@ -77,7 +94,7 @@ fun QuickModeConfig(navController: NavController) {
                             interactionSource = MutableInteractionSource(),
                             indication = null
                         ) {
-                            navController.navigate(Screen.COUNT_DOWN.route) {
+                            navController.navigate(Screens.COUNT_DOWN.createRoute(viewModel.categoryId)) {
                                 launchSingleTop = true
                             }
                         }
@@ -108,13 +125,14 @@ private fun SelectedCategoryDetail(index: Int, visible: Boolean) {
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn() + slideInVertically { height -> height },
-        exit = fadeOut() + slideOutVertically { height -> -height }
+        exit = fadeOut() + slideOutVertically { height -> -height },
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             with(categories[index]) {
+
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = name, style = MaterialTheme.typography.headlineMedium)
                 Spacer(modifier = Modifier.height(4.dp))
@@ -124,18 +142,18 @@ private fun SelectedCategoryDetail(index: Int, visible: Boolean) {
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                 )
 
-                if (forPro) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Badge(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .animateEnterExit(
-                                enter = fadeIn(),
-                                exit = fadeOut()
-                            )
-                    ) {
-                        Text(text = "PRO", fontSize = 14.sp)
-                    }
+                if (!forPro) return@with
+
+                Spacer(modifier = Modifier.height(4.dp))
+                Badge(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .animateEnterExit(
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        )
+                ) {
+                    Text(text = "PRO", fontSize = 14.sp)
                 }
 
             }
