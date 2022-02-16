@@ -1,5 +1,5 @@
 # Trivia
-
+### V2 is in progress. Checkout the code [here](https://github.com/amsavarthan/trivia/tree/v2)
 <img src="https://github.com/amsavarthan/trivia/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_web.png" height="200" width="200">
 
 Trivia is an online quiz game which has more than 10 categories to play. All the question are taken from www.opentdb.com (API)
