@@ -1,5 +1,6 @@
 package com.amsavarthan.game.trivia.view.screen
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
@@ -25,14 +27,22 @@ import kotlinx.coroutines.delay
 @Composable
 fun CountDownScreen(
     viewModel: GameScreenViewModel,
+    navController: NavController,
     categoryId: Int,
-    navController: NavController
 ) {
 
+    val context = LocalContext.current
+    val energy by viewModel.energy.collectAsState()
     val isLoaded by viewModel.hasQuestionsLoaded.collectAsState()
     var count by remember { mutableStateOf(3) }
 
     LaunchedEffect(Unit) {
+
+        if (energy <= 0) {
+            navController.navigateUp()
+            Toast.makeText(context, "Insufficient Energy", Toast.LENGTH_SHORT).show()
+            return@LaunchedEffect
+        }
 
         delay(900)
         while (count != 0) {
@@ -46,6 +56,7 @@ fun CountDownScreen(
 
     LaunchedEffect(isLoaded) {
         if (!isLoaded) return@LaunchedEffect
+        viewModel.decreaseEnergy()
         navController.navigate(Screens.GAME_SCREEN.route) {
             launchSingleTop = true
             popUpTo(Screens.COUNT_DOWN.route) {

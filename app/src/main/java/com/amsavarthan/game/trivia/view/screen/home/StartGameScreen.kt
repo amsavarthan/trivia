@@ -22,12 +22,14 @@ import com.amsavarthan.game.trivia.ui.navigation.name
 import com.amsavarthan.game.trivia.view.screen.home.modes.CasualModeConfig
 import com.amsavarthan.game.trivia.view.screen.home.modes.DuelModeConfig
 import com.amsavarthan.game.trivia.view.screen.home.modes.QuickModeConfig
+import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun StartGameScreen(
-    viewModel: HomeScreenViewModel,
+    homeScreenViewModel: HomeScreenViewModel,
+    gameScreenViewModel: GameScreenViewModel,
     parentNavController: NavController,
     onBack: () -> Unit
 ) {
@@ -52,13 +54,13 @@ fun StartGameScreen(
             startDestination = HomeScreens.CHOOSE_MODE.route
         ) {
             composable(HomeScreens.CHOOSE_MODE.route) {
-                ChooseModeScreen(viewModel, navController)
+                ChooseModeScreen(homeScreenViewModel, navController)
             }
             composable(HomeScreens.QUICK_MODE.route) {
-                QuickModeConfig(viewModel, parentNavController)
+                QuickModeConfig(homeScreenViewModel, gameScreenViewModel, parentNavController)
             }
             composable(HomeScreens.CASUAL_MODE.route) {
-                CasualModeConfig(viewModel, parentNavController)
+                CasualModeConfig(homeScreenViewModel, gameScreenViewModel, parentNavController)
             }
             composable(HomeScreens.DUEL_MODE.route) {
                 DuelModeConfig(parentNavController)

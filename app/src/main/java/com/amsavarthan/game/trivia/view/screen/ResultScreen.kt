@@ -59,6 +59,7 @@ fun ResultScreen(viewModel: GameScreenViewModel, navController: NavController) {
 
     LaunchedEffect(Unit) {
 
+        viewModel.increaseGamePlayCount()
         stats[Stat.CORRECT] = data.count { it.isCorrect }
         stats[Stat.MISSED] = data.count { it.givenAnswer.isNullOrBlank() }
         stats[Stat.INCORRECT] = data.size.minus(stats[Stat.CORRECT]!! + stats[Stat.MISSED]!!)
@@ -183,7 +184,6 @@ private fun GameStat(title: String, value: Int) {
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Text(
             text = value.toString(),
             style = MaterialTheme.typography.headlineMedium,

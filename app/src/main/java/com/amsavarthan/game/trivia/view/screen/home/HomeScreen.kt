@@ -25,7 +25,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsHeight
@@ -36,10 +38,17 @@ enum class ButtonState {
 }
 
 @Composable
-fun HomeScreen(viewModel: HomeScreenViewModel, parentNavController: NavController) {
+fun HomeScreen(
+    homeScreenViewModel: HomeScreenViewModel,
+    gameScreenViewModel: GameScreenViewModel,
+    parentNavController: NavController
+) {
 
     val scrollState = rememberScrollState()
-    val buttonState by viewModel.buttonState.collectAsState()
+    val buttonState by homeScreenViewModel.buttonState.collectAsState()
+
+    val gamesPlayed by gameScreenViewModel.gamesPlayed.collectAsState()
+    val energy by gameScreenViewModel.energy.collectAsState()
 
     Box(modifier = Modifier.fillMaxHeight()) {
         Column(
@@ -48,19 +57,24 @@ fun HomeScreen(viewModel: HomeScreenViewModel, parentNavController: NavControlle
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            User(name = "Amsavarthan", gamesPlayed = 0, energy = 0)
+            User(name = "Amsavarthan", gamesPlayed = gamesPlayed, energy = energy)
             Spacer(modifier = Modifier.height(16.dp))
         }
         AnimatedContainer(
             targetState = buttonState,
             onExpandAction = {
-                viewModel.updateButtonState(ButtonState.EXPANDED)
+                homeScreenViewModel.updateButtonState(ButtonState.EXPANDED)
             },
             collapsedContent = { CollapsedContent() },
             expandedContent = {
-                StartGameScreen(viewModel, parentNavController, onBack = {
-                    viewModel.updateButtonState(ButtonState.NORMAL)
-                })
+                StartGameScreen(
+                    homeScreenViewModel,
+                    gameScreenViewModel,
+                    parentNavController,
+                    onBack = {
+                        homeScreenViewModel.updateButtonState(ButtonState.NORMAL)
+                    }
+                )
             },
         )
     }
@@ -70,10 +84,12 @@ fun HomeScreen(viewModel: HomeScreenViewModel, parentNavController: NavControlle
 private fun CollapsedContent() {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.spacedBy(
+            4.dp,
+            Alignment.CenterHorizontally
+        ),
     ) {
         Icon(imageVector = Icons.Filled.SportsEsports, contentDescription = "Play Game")
-        Spacer(modifier = Modifier.width(4.dp))
         Text(text = "PLAY NOW", style = MaterialTheme.typography.labelLarge)
     }
 }
@@ -199,14 +215,14 @@ private fun User(name: String, gamesPlayed: Int, energy: Int) {
 
     UserDetails {
         UserDetailItem(
-            title = "Games Played",
-            value = "${if (gamesPlayed == 0) "-" else gamesPlayed}",
+            title = "GAMES PLAYED",
+            value = "$gamesPlayed",
             shape = RoundedCornerShape(topStartPercent = 16, bottomStartPercent = 16),
             paddingValues = PaddingValues(end = 1.dp)
         )
         UserDetailItem(
-            title = "Energy",
-            value = "${if (energy == 0) "-" else energy}",
+            title = "ENERGY",
+            value = "$energy",
             shape = RoundedCornerShape(topEndPercent = 16, bottomEndPercent = 16),
             paddingValues = PaddingValues(start = 1.dp)
         )
@@ -242,25 +258,25 @@ private fun RowScope.UserDetailItem(
         onClick = { /*TODO*/ },
         shape = shape,
         indication = rememberRipple(),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxHeight(),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(4.dp,Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = value,
                 style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.SemiBold
             )
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 2.sp),
+                color = MaterialTheme.colorScheme.secondary
             )
         }
     }

@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.interceptor
+package com.amsavarthan.game.trivia.data.api.interceptor
 
 import android.content.Context
 import android.net.ConnectivityManager

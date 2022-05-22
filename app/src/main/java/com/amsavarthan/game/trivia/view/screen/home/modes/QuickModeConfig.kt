@@ -1,5 +1,6 @@
 package com.amsavarthan.game.trivia.view.screen.home.modes
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
@@ -12,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -20,6 +22,7 @@ import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
 import com.amsavarthan.game.trivia.ui.common.anim.SlideOnChange
 import com.amsavarthan.game.trivia.ui.navigation.Screens
 import com.amsavarthan.game.trivia.ui.navigation.createRoute
+import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 import kotlinx.coroutines.delay
 import kotlin.random.Random
@@ -27,18 +30,21 @@ import kotlin.random.Random
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun QuickModeConfig(
-    viewModel: HomeScreenViewModel,
+    homeScreenViewModel: HomeScreenViewModel,
+    gameScreenViewModel: GameScreenViewModel,
     navController: NavController
 ) {
 
-    val selectedIndex by viewModel.quickModeSelectedIndex.collectAsState()
+    val context = LocalContext.current
+    val energy by gameScreenViewModel.energy.collectAsState()
+    val selectedIndex by homeScreenViewModel.quickModeSelectedIndex.collectAsState()
 
+    var selectionStopped by remember { mutableStateOf(false) }
     var lookingIndex by remember {
         mutableStateOf(
             selectedIndex ?: Random.nextInt(categories.size)
         )
     }
-    var selectionStopped by remember { mutableStateOf(false) }
 
     val alpha by animateFloatAsState(
         targetValue = when (selectionStopped) {
@@ -61,7 +67,7 @@ fun QuickModeConfig(
         }
 
         selectionStopped = true
-        viewModel.updateQuickModeSelectedIndex(lookingIndex)
+        homeScreenViewModel.updateQuickModeSelectedIndex(lookingIndex)
     }
 
     Column(
@@ -94,7 +100,17 @@ fun QuickModeConfig(
                             interactionSource = MutableInteractionSource(),
                             indication = null
                         ) {
-                            navController.navigate(Screens.COUNT_DOWN.createRoute(viewModel.categoryId)) {
+                            if (energy <= 0) {
+                                navController.navigateUp()
+                                Toast.makeText(context, "Insufficient Energy", Toast.LENGTH_SHORT)
+                                    .show()
+                                return@clickable
+                            }
+                            navController.navigate(
+                                Screens.COUNT_DOWN.createRoute(
+                                    homeScreenViewModel.categoryId
+                                )
+                            ) {
                                 launchSingleTop = true
                             }
                         }

@@ -1,8 +1,6 @@
 package com.amsavarthan.game.trivia.data.preference
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -15,7 +13,7 @@ import java.io.IOException
 import javax.inject.Inject
 
 private const val TOKEN_PREFERENCES_NAME = "token_preferences"
-private val Context.datastore: DataStore<Preferences> by preferencesDataStore(name = TOKEN_PREFERENCES_NAME)
+private val Context.datastore by preferencesDataStore(name = TOKEN_PREFERENCES_NAME)
 
 class TokenDatastore @Inject constructor(
     @ApplicationContext private val context: Context

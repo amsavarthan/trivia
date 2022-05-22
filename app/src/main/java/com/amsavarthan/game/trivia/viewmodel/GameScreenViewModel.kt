@@ -3,11 +3,12 @@ package com.amsavarthan.game.trivia.viewmodel
 import android.text.Html
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.amsavarthan.game.trivia.data.api.interceptor.NoConnectivityException
 import com.amsavarthan.game.trivia.data.models.GameResult
 import com.amsavarthan.game.trivia.data.models.Question
 import com.amsavarthan.game.trivia.data.models.QuestionApiResponse
+import com.amsavarthan.game.trivia.data.preference.GameDatastore
 import com.amsavarthan.game.trivia.data.preference.TokenDatastore
-import com.amsavarthan.game.trivia.interceptor.NoConnectivityException
 import com.amsavarthan.game.trivia.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,8 +20,31 @@ import javax.inject.Inject
 @HiltViewModel
 class GameScreenViewModel @Inject constructor(
     private val repository: Repository,
-    private val datastore: TokenDatastore
+    private val tokenDatastore: TokenDatastore,
+    private val gameDatastore: GameDatastore,
 ) : ViewModel() {
+
+    private val _gamesPlayed = MutableStateFlow(0)
+    val gamesPlayed get() = _gamesPlayed.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            gameDatastore.gamesPlayedPreferencesFlow.collectLatest { count ->
+                _gamesPlayed.emit(count)
+            }
+        }
+    }
+
+    private val _energy = MutableStateFlow(0)
+    val energy get() = _energy.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            gameDatastore.energyPreferencesFlow.collectLatest { value ->
+                _energy.emit(value)
+            }
+        }
+    }
 
     private var _gameResult = mutableListOf<GameResult>()
     val gameResult get() = _gameResult.toList()
@@ -38,7 +62,7 @@ class GameScreenViewModel @Inject constructor(
         try {
             val response = repository.getSessionToken()
             if (!response.isSuccessful) return@launch
-            datastore.saveTokenToPreferencesStore(response.body()?.token ?: "")
+            tokenDatastore.saveTokenToPreferencesStore(response.body()?.token ?: "")
         } catch (e: NoConnectivityException) {
             e.printStackTrace()
         }
@@ -48,7 +72,7 @@ class GameScreenViewModel @Inject constructor(
         try {
             val response = repository.resetSessionToken(token)
             if (!response.isSuccessful) return@launch
-            datastore.saveTokenToPreferencesStore(response.body()?.token ?: "")
+            tokenDatastore.saveTokenToPreferencesStore(response.body()?.token ?: "")
         } catch (e: NoConnectivityException) {
             e.printStackTrace()
         }
@@ -79,7 +103,7 @@ class GameScreenViewModel @Inject constructor(
 
     fun getQuestions(categoryId: Int) {
         viewModelScope.launch {
-            datastore.preferencesFlow.collectLatest { token ->
+            tokenDatastore.preferencesFlow.collectLatest { token ->
                 if (token.isBlank()) initSession().join()
 
                 try {
@@ -127,6 +151,14 @@ class GameScreenViewModel @Inject constructor(
     private fun String.fromHtml() = Html.fromHtml(
         this, Html.FROM_HTML_MODE_LEGACY
     ).toString()
+
+    fun increaseGamePlayCount() {
+        viewModelScope.launch { gameDatastore.incrementGamePlayCount() }
+    }
+
+    fun decreaseEnergy() {
+        viewModelScope.launch { gameDatastore.decreaseEnergy() }
+    }
 
 }
 

@@ -1,5 +1,6 @@
 package com.amsavarthan.game.trivia.view.screen.home.modes
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -27,20 +29,28 @@ import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
 import com.amsavarthan.game.trivia.ui.common.anim.SlideOnChange
 import com.amsavarthan.game.trivia.ui.navigation.Screens
 import com.amsavarthan.game.trivia.ui.navigation.createRoute
+import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 
 @Composable
 fun CasualModeConfig(
-    viewModel: HomeScreenViewModel,
+    homeScreenViewModel: HomeScreenViewModel,
+    gameScreenViewModel: GameScreenViewModel,
     navController: NavController
 ) {
 
-    val selectedIndex by viewModel.casualModeSelectedIndex.collectAsState()
+    val context = LocalContext.current
+    val energy by gameScreenViewModel.energy.collectAsState()
+    val selectedIndex by homeScreenViewModel.casualModeSelectedIndex.collectAsState()
     var triggerStartGame by remember { mutableStateOf(false) }
 
     LaunchedEffect(triggerStartGame) {
         if (!triggerStartGame) return@LaunchedEffect
-        navController.navigate(Screens.COUNT_DOWN.createRoute(viewModel.categoryId)) {
+        if (energy <= 0) {
+            Toast.makeText(context, "Insufficient Energy", Toast.LENGTH_SHORT).show()
+            return@LaunchedEffect
+        }
+        navController.navigate(Screens.COUNT_DOWN.createRoute(homeScreenViewModel.categoryId)) {
             launchSingleTop = true
         }
     }
@@ -52,7 +62,7 @@ fun CasualModeConfig(
             SelectedCategoryDetail(selectedIndex, triggerStartGame)
             CategoryList(selectedIndex, triggerStartGame) { clickedIndex ->
                 triggerStartGame = (selectedIndex == clickedIndex)
-                viewModel.updateCasualModeSelectedIndex(clickedIndex)
+                homeScreenViewModel.updateCasualModeSelectedIndex(clickedIndex)
             }
         }
     }
@@ -77,9 +87,7 @@ fun CategoryList(selectedIndex: Int, triggerStartGame: Boolean, onItemClick: (In
         ) {
             itemsIndexed(categories) { index, item ->
                 Spacer(modifier = Modifier.width(if (index == 0) 24.dp else 4.dp))
-                CategoryItem(item, selectedIndex == index, onClick = {
-                    onItemClick(index)
-                })
+                CategoryItem(item, selectedIndex == index, onClick = { onItemClick(index) })
                 Spacer(modifier = Modifier.width(if (index == categories.lastIndex) 24.dp else 4.dp))
             }
         }
@@ -91,8 +99,7 @@ fun CategoryList(selectedIndex: Int, triggerStartGame: Boolean, onItemClick: (In
 private fun ColumnScope.SelectedCategoryDetail(selectedIndex: Int, triggerStartGame: Boolean) {
 
     val alpha by animateFloatAsState(
-        targetValue = if (categories[selectedIndex].forPro) 1f
-        else 0f
+        targetValue = if (categories[selectedIndex].forPro) 1f else 0f
     )
 
     AnimatedVisibility(
@@ -107,7 +114,7 @@ private fun ColumnScope.SelectedCategoryDetail(selectedIndex: Int, triggerStartG
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -121,7 +128,7 @@ private fun ColumnScope.SelectedCategoryDetail(selectedIndex: Int, triggerStartG
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             AnimatedContent(
                 targetState = selectedIndex,
                 transitionSpec = { fadeIn() with fadeOut() }
@@ -131,15 +138,11 @@ private fun ColumnScope.SelectedCategoryDetail(selectedIndex: Int, triggerStartG
                     style = MaterialTheme.typography.headlineMedium
                 )
             }
-
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Click again to start the game",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
             )
-
-            Spacer(modifier = Modifier.height(4.dp))
             Badge(
                 modifier = Modifier
                     .padding(8.dp)

@@ -55,40 +55,56 @@ android {
 
 dependencies {
 
+    //Core
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.activity:activity-compose:1.4.0'
 
+    //Compose
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation "androidx.compose.material3:material3:1.0.0-alpha04"
     implementation 'com.google.android.material:material:1.6.0-alpha02'
-    implementation "androidx.compose.material:material-icons-extended:$compose_version"
 
+    //Jetpack Navigation
     implementation "androidx.navigation:navigation-compose:2.5.0-alpha01"
-    implementation "com.google.accompanist:accompanist-insets:0.21.2-beta"
 
+    //Lifecycle
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0'
 
+    //Hilt
     implementation 'com.google.dagger:hilt-android:2.40'
     kapt 'com.google.dagger:hilt-compiler:2.40'
 
+    //Firebase
     implementation platform('com.google.firebase:firebase-bom:29.0.0')
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.android.gms:play-services-auth:20.0.1'
 
+    //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
 
+    //Moshi
     implementation "com.squareup.moshi:moshi:1.13.0"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:1.13.0"
 
+    //WorkManager
+    implementation "androidx.work:work-runtime-ktx:2.7.1"
+    implementation 'androidx.hilt:hilt-work:1.0.0'
+    kapt 'androidx.hilt:hilt-compiler:1.0.0'
+
+    //Datastore
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
+    //Miscellaneous
     implementation 'nl.dionsegijn:konfetti-compose:2.0.1'
+    implementation "com.google.accompanist:accompanist-insets:0.21.2-beta"
 
+    //Debug
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
 
 }

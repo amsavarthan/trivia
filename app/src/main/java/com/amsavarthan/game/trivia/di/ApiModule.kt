@@ -1,7 +1,8 @@
-package com.amsavarthan.game.trivia.data.api
+package com.amsavarthan.game.trivia.di
 
 import android.content.Context
-import com.amsavarthan.game.trivia.interceptor.NetworkInterceptor
+import com.amsavarthan.game.trivia.data.api.ApiService
+import com.amsavarthan.game.trivia.data.api.interceptor.NetworkInterceptor
 import com.amsavarthan.game.trivia.repository.Repository
 import com.squareup.moshi.Moshi
 import dagger.Module
