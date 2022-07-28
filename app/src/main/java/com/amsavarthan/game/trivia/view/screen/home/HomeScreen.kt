@@ -1,7 +1,10 @@
 package com.amsavarthan.game.trivia.view.screen.home
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -95,7 +98,6 @@ private fun CollapsedContent() {
 }
 
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun BoxScope.AnimatedContainer(
     targetState: ButtonState,

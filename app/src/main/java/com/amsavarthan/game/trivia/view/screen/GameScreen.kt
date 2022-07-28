@@ -30,7 +30,6 @@ import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.google.accompanist.insets.systemBarsPadding
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun GameScreen(
     viewModel: GameScreenViewModel,

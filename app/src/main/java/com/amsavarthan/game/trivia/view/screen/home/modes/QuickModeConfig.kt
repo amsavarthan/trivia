@@ -27,7 +27,6 @@ import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun QuickModeConfig(
     homeScreenViewModel: HomeScreenViewModel,
@@ -54,6 +53,8 @@ fun QuickModeConfig(
     )
 
     LaunchedEffect(selectedIndex) {
+
+        //When user comes back from count down screen we need to persist the index
         if (selectedIndex != null) {
             selectionStopped = true
             return@LaunchedEffect
@@ -139,16 +140,16 @@ fun QuickModeConfig(
 @Composable
 private fun SelectedCategoryDetail(index: Int, visible: Boolean) {
     AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn() + slideInVertically { height -> height },
-        exit = fadeOut() + slideOutVertically { height -> -height },
+        visible = true,
+        enter = EnterTransition.None,
+        exit = ExitTransition.None,
     ) {
         Column(
+            modifier = Modifier.alpha(if (visible) 1.0f else 0.0f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             with(categories[index]) {
-
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = name, style = MaterialTheme.typography.headlineMedium)
                 Spacer(modifier = Modifier.height(4.dp))

@@ -1,7 +1,6 @@
 package com.amsavarthan.game.trivia.view.screen.home
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
@@ -25,7 +24,6 @@ import com.amsavarthan.game.trivia.view.screen.home.modes.QuickModeConfig
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun StartGameScreen(
     homeScreenViewModel: HomeScreenViewModel,
@@ -95,10 +93,8 @@ private fun ScreenScaffold(
     backButton: @Composable ColumnScope.() -> Unit,
     content: @Composable () -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            backButton()
-            content()
-        }
+    Column(modifier = Modifier.fillMaxSize()) {
+        backButton()
+        content()
     }
 }

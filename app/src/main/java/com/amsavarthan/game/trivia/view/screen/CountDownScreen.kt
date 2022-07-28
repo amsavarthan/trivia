@@ -1,6 +1,7 @@
 package com.amsavarthan.game.trivia.view.screen
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -33,7 +34,7 @@ fun CountDownScreen(
 
     val context = LocalContext.current
     val energy by viewModel.energy.collectAsState()
-    val isLoaded by viewModel.hasQuestionsLoaded.collectAsState()
+    val isLoaded by viewModel.hasQuestionsLoaded.collectAsState(false)
     var count by remember { mutableStateOf(3) }
 
     LaunchedEffect(Unit) {
@@ -44,6 +45,7 @@ fun CountDownScreen(
             return@LaunchedEffect
         }
 
+        //for countdown
         delay(900)
         while (count != 0) {
             count -= 1
@@ -63,6 +65,11 @@ fun CountDownScreen(
                 inclusive = true
             }
         }
+    }
+
+    BackHandler {
+        if (count == 0) return@BackHandler
+        navController.navigateUp()
     }
 
     AnimatedVisibility(
