@@ -94,11 +94,13 @@ class GameScreenViewModel @Inject constructor(
     }
 
     fun clearQuestions() {
-        _hasQuestionsLoaded.value = false
-        _currentQuestion.value = 0 to null
-        questions = emptyList()
-        currentQuestionIndex = 0
-        _gameResult.clear()
+        viewModelScope.launch {
+            _hasQuestionsLoaded.emit(false)
+            _currentQuestion.emit(0 to null)
+            questions = emptyList()
+            currentQuestionIndex = 0
+            _gameResult.clear()
+        }
     }
 
     fun getQuestions(categoryId: Int) {
