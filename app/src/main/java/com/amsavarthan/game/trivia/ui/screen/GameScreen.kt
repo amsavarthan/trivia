@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.view.screen
+package com.amsavarthan.game.trivia.ui.screen.screen
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*

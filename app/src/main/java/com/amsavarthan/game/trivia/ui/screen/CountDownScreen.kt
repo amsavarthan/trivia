@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.view.screen
+package com.amsavarthan.game.trivia.ui.screen.screen
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler

@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.view.screen.home
+package com.amsavarthan.game.trivia.ui.screen.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition

@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.view.screen.home
+package com.amsavarthan.game.trivia.ui.screen.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
@@ -18,9 +18,9 @@ import androidx.navigation.compose.rememberNavController
 import com.amsavarthan.game.trivia.ui.navigation.HomeScreens
 import com.amsavarthan.game.trivia.ui.navigation.asScreen
 import com.amsavarthan.game.trivia.ui.navigation.name
-import com.amsavarthan.game.trivia.view.screen.home.modes.CasualModeConfig
-import com.amsavarthan.game.trivia.view.screen.home.modes.DuelModeConfig
-import com.amsavarthan.game.trivia.view.screen.home.modes.QuickModeConfig
+import com.amsavarthan.game.trivia.ui.screen.home.modes.CasualModeConfig
+import com.amsavarthan.game.trivia.ui.screen.home.modes.DuelModeConfig
+import com.amsavarthan.game.trivia.ui.screen.home.modes.QuickModeConfig
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 

@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.view.screen.home.modes
+package com.amsavarthan.game.trivia.ui.screen.home.modes
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Box

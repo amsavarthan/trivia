@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.view.screen.home.modes
+package com.amsavarthan.game.trivia.ui.screen.home.modes
 
 import android.widget.Toast
 import androidx.compose.animation.*

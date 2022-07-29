@@ -2,7 +2,7 @@ package com.amsavarthan.game.trivia.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.amsavarthan.game.trivia.data.models.categories
-import com.amsavarthan.game.trivia.view.screen.home.ButtonState
+import com.amsavarthan.game.trivia.ui.screen.home.ButtonState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
