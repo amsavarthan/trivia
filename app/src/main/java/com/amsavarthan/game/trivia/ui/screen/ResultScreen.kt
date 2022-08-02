@@ -23,7 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.amsavarthan.game.trivia.ui.screen.home.ButtonState
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
+import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import nl.dionsegijn.konfetti.compose.KonfettiView
 import nl.dionsegijn.konfetti.compose.OnParticleSystemUpdateListener
@@ -42,9 +44,13 @@ enum class Stat {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ResultScreen(viewModel: GameScreenViewModel, navController: NavController) {
+fun ResultScreen(
+    homeScreenViewModel: HomeScreenViewModel,
+    gameScreenViewModel: GameScreenViewModel,
+    navController: NavController
+) {
 
-    val data = remember { viewModel.gameResult }
+    val data = remember { gameScreenViewModel.gameResult }
     var showStats by remember { mutableStateOf(false) }
     var points by remember { mutableStateOf(0) }
 
@@ -59,21 +65,13 @@ fun ResultScreen(viewModel: GameScreenViewModel, navController: NavController) {
 
     LaunchedEffect(Unit) {
 
-        viewModel.increaseGamePlayCount()
+        homeScreenViewModel.updateButtonState(ButtonState.NORMAL)
         stats[Stat.CORRECT] = data.count { it.isCorrect }
         stats[Stat.MISSED] = data.count { it.givenAnswer.isNullOrBlank() }
         stats[Stat.INCORRECT] = data.size.minus(stats[Stat.CORRECT]!! + stats[Stat.MISSED]!!)
-
-        var maxStreak = -1
-        var streak = -1
-        data.forEach { (_, _, isCorrect) ->
-            streak = if (isCorrect) streak.inc() else -1
-            if (streak > maxStreak) maxStreak = streak
-        }
-
-        stats[Stat.STREAK] = if (maxStreak > 0) maxStreak else 0
-
-        points = (stats[Stat.STREAK]!! * 10) + (stats[Stat.CORRECT]!! * 5)
+        stats[Stat.STREAK] = gameScreenViewModel.streak
+        points =
+            (stats[Stat.STREAK]!! * gameScreenViewModel.streakMultiplier) + (stats[Stat.CORRECT]!! * 5)
 
     }
 
@@ -157,7 +155,7 @@ fun ResultScreen(viewModel: GameScreenViewModel, navController: NavController) {
                         .fillMaxWidth()
                         .padding(bottom = 24.dp)
                         .padding(horizontal = 32.dp),
-                    onClick = { onBack(viewModel, navController) }
+                    onClick = { onBack(gameScreenViewModel, points, navController) }
                 ) {
                     Text(text = "Continue", modifier = Modifier.padding(vertical = 8.dp))
                 }
@@ -167,13 +165,17 @@ fun ResultScreen(viewModel: GameScreenViewModel, navController: NavController) {
     }
 
     BackHandler {
-        if (showStats) onBack(viewModel, navController)
+        if (showStats) onBack(gameScreenViewModel, points, navController)
     }
 
 }
 
-private fun onBack(viewModel: GameScreenViewModel, navController: NavController) {
-    viewModel.clearQuestions()
+private fun onBack(
+    gameScreenViewModel: GameScreenViewModel,
+    points: Int,
+    navController: NavController
+) {
+    gameScreenViewModel.finishGame(points)
     navController.navigateUp()
 }
 

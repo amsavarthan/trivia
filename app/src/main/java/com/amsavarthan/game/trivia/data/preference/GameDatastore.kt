@@ -1,7 +1,6 @@
 package com.amsavarthan.game.trivia.data.preference
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -20,7 +19,7 @@ class GameDatastore @Inject constructor(
 ) {
 
     private val GAMES_PLAYED = intPreferencesKey("games_played")
-    private val ENERGY = intPreferencesKey("energy")
+    private val TRIVIA_POINTS = intPreferencesKey("trivia_points")
 
     private val datastore = context.datastore
 
@@ -33,35 +32,24 @@ class GameDatastore @Inject constructor(
             preferences[GAMES_PLAYED] ?: 0
         }
 
+    val triviaPointsPreferencesFlow = datastore.data
+        .catch {
+            if (it !is IOException) throw it
+            it.printStackTrace()
+            emit(emptyPreferences())
+        }.map { preferences ->
+            preferences[TRIVIA_POINTS] ?: 0
+        }
+
     suspend fun incrementGamePlayCount() {
         datastore.edit { preferences ->
             preferences[GAMES_PLAYED] = (preferences[GAMES_PLAYED] ?: 0).inc()
         }
     }
 
-    val energyPreferencesFlow = datastore.data
-        .catch {
-            if (it !is IOException) throw it
-            it.printStackTrace()
-            emit(emptyPreferences())
-        }.map { preferences ->
-            preferences[ENERGY] ?: 5
-        }
-
-    suspend fun decreaseEnergy() {
+    suspend fun incrementTriviaPoints(points: Int) {
         datastore.edit { preferences ->
-            preferences[ENERGY] = (preferences[ENERGY] ?: 5).dec()
-        }
-    }
-
-    suspend fun increaseEnergy() {
-        datastore.edit { preferences ->
-            val energy = preferences[ENERGY]
-            preferences[ENERGY] = when {
-                energy == null -> 1
-                energy < 5 -> energy.inc()
-                else -> return@edit
-            }
+            preferences[TRIVIA_POINTS] = (preferences[TRIVIA_POINTS] ?: 0).plus(points)
         }
     }
 

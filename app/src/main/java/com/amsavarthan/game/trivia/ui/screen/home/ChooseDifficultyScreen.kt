@@ -16,14 +16,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.amsavarthan.game.trivia.data.models.GameMode
-import com.amsavarthan.game.trivia.data.models.gameModes
+import com.amsavarthan.game.trivia.data.models.DifficultyMode
+import com.amsavarthan.game.trivia.data.models.difficultyModes
+import com.amsavarthan.game.trivia.ui.navigation.HomeScreens
+import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 
 @Composable
-fun ChooseModeScreen(
-    viewModel: HomeScreenViewModel,
-    navController: NavController
+fun ChooseDifficultyScreen(
+    homeScreenViewModel: HomeScreenViewModel,
+    gameScreenViewModel: GameScreenViewModel,
+    navController: NavController,
 ) {
     Column(
         modifier = Modifier
@@ -31,10 +34,11 @@ fun ChooseModeScreen(
             .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        gameModes.forEach { item ->
-            GameMode(item) {
-                viewModel.resetIndices()
-                navController.navigate(item.route)
+        difficultyModes.forEach { item ->
+            DifficultyModeItem(item) {
+                homeScreenViewModel.updateCasualModeSelectedIndex(0)
+                gameScreenViewModel.updateDifficultyMode(item.title.lowercase())
+                navController.navigate(HomeScreens.CATEGORY_SCREEN.route)
             }
         }
     }
@@ -42,8 +46,8 @@ fun ChooseModeScreen(
 
 
 @Composable
-private fun GameMode(
-    mode: GameMode,
+private fun DifficultyModeItem(
+    mode: DifficultyMode,
     onClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(4)

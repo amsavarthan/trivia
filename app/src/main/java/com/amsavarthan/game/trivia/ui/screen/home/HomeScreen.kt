@@ -5,10 +5,12 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
-import androidx.compose.foundation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material.ripple.rememberRipple
@@ -21,15 +23,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.amsavarthan.game.trivia.R
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 import com.google.accompanist.insets.navigationBarsPadding
@@ -44,14 +47,14 @@ enum class ButtonState {
 fun HomeScreen(
     homeScreenViewModel: HomeScreenViewModel,
     gameScreenViewModel: GameScreenViewModel,
-    parentNavController: NavController
+    navController: NavController
 ) {
 
     val scrollState = rememberScrollState()
-    val buttonState by homeScreenViewModel.buttonState.collectAsState()
 
+    val buttonState by homeScreenViewModel.buttonState.collectAsState()
     val gamesPlayed by gameScreenViewModel.gamesPlayed.collectAsState()
-    val energy by gameScreenViewModel.energy.collectAsState()
+    val triviaPoints by gameScreenViewModel.triviaPoints.collectAsState()
 
     Box(modifier = Modifier.fillMaxHeight()) {
         Column(
@@ -60,23 +63,19 @@ fun HomeScreen(
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            User(name = "Amsavarthan", gamesPlayed = gamesPlayed, energy = energy)
+            Header(gamesPlayed = gamesPlayed, triviaPoints = triviaPoints)
             Spacer(modifier = Modifier.height(16.dp))
         }
         AnimatedContainer(
             targetState = buttonState,
-            onExpandAction = {
-                homeScreenViewModel.updateButtonState(ButtonState.EXPANDED)
-            },
+            onExpandAction = { homeScreenViewModel.updateButtonState(ButtonState.EXPANDED) },
             collapsedContent = { CollapsedContent() },
             expandedContent = {
                 StartGameScreen(
-                    homeScreenViewModel,
-                    gameScreenViewModel,
-                    parentNavController,
-                    onBack = {
-                        homeScreenViewModel.updateButtonState(ButtonState.NORMAL)
-                    }
+                    homeScreenViewModel = homeScreenViewModel,
+                    gameScreenViewModel = gameScreenViewModel,
+                    parentNavController = navController,
+                    onBack = { homeScreenViewModel.updateButtonState(ButtonState.NORMAL) }
                 )
             },
         )
@@ -84,27 +83,50 @@ fun HomeScreen(
 }
 
 @Composable
-private fun CollapsedContent() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(
-            4.dp,
-            Alignment.CenterHorizontally
-        ),
-    ) {
-        Icon(imageVector = Icons.Filled.SportsEsports, contentDescription = "Play Game")
-        Text(text = "PLAY NOW", style = MaterialTheme.typography.labelLarge)
-    }
-}
+private fun Header(
+    gamesPlayed: Int,
+    triviaPoints: Int
+) {
 
+    Spacer(modifier = Modifier.statusBarsHeight(48.dp))
+    Text(
+        text = stringResource(id = R.string.app_name),
+        style = MaterialTheme.typography.displayLarge,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.primary
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(
+        text = "Created by Amsavarthan Lv",
+        color = MaterialTheme.colorScheme.onBackground
+    )
+    Spacer(modifier = Modifier.height(32.dp))
+
+    UserDetails {
+        UserDetailItem(
+            title = "GAMES PLAYED",
+            value = "$gamesPlayed",
+            shape = RoundedCornerShape(topStartPercent = 16, bottomStartPercent = 16),
+            paddingValues = PaddingValues(end = 1.dp)
+        )
+        UserDetailItem(
+            title = "TRIVIA POINTS",
+            value = "$triviaPoints",
+            shape = RoundedCornerShape(topEndPercent = 16, bottomEndPercent = 16),
+            paddingValues = PaddingValues(start = 1.dp)
+        )
+    }
+
+}
 
 @Composable
 private fun BoxScope.AnimatedContainer(
     targetState: ButtonState,
+    onExpandAction: () -> Unit,
     expandedContent: @Composable () -> Unit,
     collapsedContent: @Composable () -> Unit,
-    onExpandAction: () -> Unit,
 ) {
+
     val transition = updateTransition(
         targetState,
         label = "Play Now Button Transition"
@@ -188,52 +210,26 @@ private fun BoxScope.AnimatedContainer(
         }
     }
 
-
 }
 
 @Composable
-private fun User(name: String, gamesPlayed: Int, energy: Int) {
-
-    Spacer(modifier = Modifier.statusBarsHeight(48.dp))
-    Text(
-        text = "Hello,",
-        style = MaterialTheme.typography.titleLarge,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-    Text(
-        text = "$name!",
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-    Spacer(modifier = Modifier.height(32.dp))
-    Box(
-        modifier = Modifier
-            .clip(CircleShape)
-            .size(80.dp)
-            .background(MaterialTheme.colorScheme.primary)
-    )
-    Spacer(modifier = Modifier.height(32.dp))
-
-    UserDetails {
-        UserDetailItem(
-            title = "GAMES PLAYED",
-            value = "$gamesPlayed",
-            shape = RoundedCornerShape(topStartPercent = 16, bottomStartPercent = 16),
-            paddingValues = PaddingValues(end = 1.dp)
-        )
-        UserDetailItem(
-            title = "ENERGY",
-            value = "$energy",
-            shape = RoundedCornerShape(topEndPercent = 16, bottomEndPercent = 16),
-            paddingValues = PaddingValues(start = 1.dp)
-        )
+private fun CollapsedContent() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(
+            4.dp,
+            Alignment.CenterHorizontally
+        ),
+    ) {
+        Icon(imageVector = Icons.Filled.SportsEsports, contentDescription = "Play Game")
+        Text(text = "PLAY NOW", style = MaterialTheme.typography.labelLarge)
     }
-
 }
 
 @Composable
-private fun UserDetails(content: @Composable RowScope.() -> Unit) {
+private fun UserDetails(
+    content: @Composable RowScope.() -> Unit
+) {
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -266,7 +262,7 @@ private fun RowScope.UserDetailItem(
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxHeight(),
-            verticalArrangement = Arrangement.spacedBy(4.dp,Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(

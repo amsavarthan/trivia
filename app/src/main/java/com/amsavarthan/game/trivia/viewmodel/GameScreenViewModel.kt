@@ -3,13 +3,12 @@ package com.amsavarthan.game.trivia.viewmodel
 import android.text.Html
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.amsavarthan.game.trivia.data.api.interceptor.NoConnectivityException
 import com.amsavarthan.game.trivia.data.models.GameResult
 import com.amsavarthan.game.trivia.data.models.Question
 import com.amsavarthan.game.trivia.data.models.QuestionApiResponse
 import com.amsavarthan.game.trivia.data.preference.GameDatastore
-import com.amsavarthan.game.trivia.data.preference.TokenDatastore
 import com.amsavarthan.game.trivia.repository.Repository
+import com.amsavarthan.game.trivia.ui.screen.ResponseStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +19,6 @@ import javax.inject.Inject
 @HiltViewModel
 class GameScreenViewModel @Inject constructor(
     private val repository: Repository,
-    private val tokenDatastore: TokenDatastore,
     private val gameDatastore: GameDatastore,
 ) : ViewModel() {
 
@@ -35,13 +33,13 @@ class GameScreenViewModel @Inject constructor(
         }
     }
 
-    private val _energy = MutableStateFlow(0)
-    val energy get() = _energy.asStateFlow()
+    private val _triviaPoints = MutableStateFlow(0)
+    val triviaPoints get() = _triviaPoints.asStateFlow()
 
     init {
         viewModelScope.launch {
-            gameDatastore.energyPreferencesFlow.collectLatest { value ->
-                _energy.emit(value)
+            gameDatastore.triviaPointsPreferencesFlow.collectLatest { points ->
+                _triviaPoints.emit(points)
             }
         }
     }
@@ -52,33 +50,38 @@ class GameScreenViewModel @Inject constructor(
     private var questions = emptyList<Question>()
     private var currentQuestionIndex = 0
 
-    private val _hasQuestionsLoaded = MutableStateFlow(false)
-    val hasQuestionsLoaded get() = _hasQuestionsLoaded.asStateFlow()
+    private val _responseStatus = MutableStateFlow(ResponseStatus.IDLE)
+    val responseStatus get() = _responseStatus.asStateFlow()
 
     private val _currentQuestion = MutableStateFlow<Pair<Int, Question?>>(0 to null)
     val currentQuestion get() = _currentQuestion.asStateFlow()
 
-    private fun initSession() = viewModelScope.launch {
-        try {
-            val response = repository.getSessionToken()
-            if (!response.isSuccessful) return@launch
-            tokenDatastore.saveTokenToPreferencesStore(response.body()?.token ?: "")
-        } catch (e: NoConnectivityException) {
-            e.printStackTrace()
-        }
+    private var _difficultyMode = "";
+    val difficultyMode get() = _difficultyMode
+
+    fun updateDifficultyMode(value: String) {
+        _difficultyMode = value.substringAfter("- ")
     }
 
-    private fun resetSession(token: String) = viewModelScope.launch {
-        try {
-            val response = repository.resetSessionToken(token)
-            if (!response.isSuccessful) return@launch
-            tokenDatastore.saveTokenToPreferencesStore(response.body()?.token ?: "")
-        } catch (e: NoConnectivityException) {
-            e.printStackTrace()
+    val streak: Int
+        get() {
+            var maxStreak = -1
+            var streak = -1
+            gameResult.forEach { (_, _, isCorrect) ->
+                streak = if (isCorrect) streak.inc() else -1
+                if (streak > maxStreak) maxStreak = streak
+            }
+            return if (maxStreak > 0) maxStreak else 0
         }
-    }
 
-    private fun updateData(response: QuestionApiResponse?) = viewModelScope.launch {
+    val streakMultiplier
+        get() = when (_difficultyMode) {
+            "medium" -> 2
+            "hard" -> 5
+            else -> 1
+        }
+
+    private suspend fun updateData(response: QuestionApiResponse?) {
         questions = response?.questions.orEmpty()
         questions.forEach {
             it.run {
@@ -90,48 +93,25 @@ class GameScreenViewModel @Inject constructor(
         }
 
         _currentQuestion.emit(currentQuestionIndex to questions.getOrNull(currentQuestionIndex))
-        _hasQuestionsLoaded.emit(true)
-    }
-
-    fun clearQuestions() {
-        viewModelScope.launch {
-            _hasQuestionsLoaded.emit(false)
-            _currentQuestion.emit(0 to null)
-            questions = emptyList()
-            currentQuestionIndex = 0
-            _gameResult.clear()
-        }
+        _responseStatus.emit(ResponseStatus.SUCCESS)
     }
 
     fun getQuestions(categoryId: Int) {
         viewModelScope.launch {
-            tokenDatastore.preferencesFlow.collectLatest { token ->
-                if (token.isBlank()) initSession().join()
-
-                try {
-                    val response = repository.getQuestionsByCategory(token, categoryId)
-                    if (!response.isSuccessful) return@collectLatest
-
-                    val apiResponse = response.body()
-
-                    when (apiResponse?.responseCode) {
-                        3 -> {
-                            initSession().join()
-                            getQuestions(categoryId)
-                        }
-                        4 -> {
-                            resetSession(token).join()
-                            getQuestions(categoryId)
-                        }
-                        else -> updateData(apiResponse).join()
-                    }
-
-                } catch (e: NoConnectivityException) {
-                    e.printStackTrace()
-                }
+            try {
+                val response = repository.getQuestionsByCategory(
+                    categoryId,
+                    _difficultyMode
+                )
+                if (!response.isSuccessful) throw RuntimeException("Some error occurred : ${response.message()}")
+                val apiResponse = response.body()
+                updateData(apiResponse)
+            } catch (e: Exception) {
+                _responseStatus.emit(ResponseStatus.FAILED)
             }
         }
     }
+
 
     fun nextQuestion(): Boolean {
         currentQuestionIndex++
@@ -154,12 +134,30 @@ class GameScreenViewModel @Inject constructor(
         this, Html.FROM_HTML_MODE_LEGACY
     ).toString()
 
-    fun increaseGamePlayCount() {
+
+    fun clearQuestions() {
+        viewModelScope.launch {
+            _responseStatus.emit(ResponseStatus.IDLE)
+            _currentQuestion.emit(0 to null)
+            questions = emptyList()
+            currentQuestionIndex = 0
+            _gameResult.clear()
+        }
+    }
+
+    private fun increaseGamePlayCount() {
         viewModelScope.launch { gameDatastore.incrementGamePlayCount() }
     }
 
-    fun decreaseEnergy() {
-        viewModelScope.launch { gameDatastore.decreaseEnergy() }
+    private fun incrementTriviaPoints(points: Int) {
+        viewModelScope.launch { gameDatastore.incrementTriviaPoints(points) }
+    }
+
+    fun finishGame(points: Int) {
+        updateDifficultyMode("")
+        increaseGamePlayCount()
+        incrementTriviaPoints(points)
+        clearQuestions()
     }
 
 }

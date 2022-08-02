@@ -1,18 +1,19 @@
 package com.amsavarthan.game.trivia.repository
 
 import com.amsavarthan.game.trivia.data.api.ApiService
+import com.amsavarthan.game.trivia.data.models.QuestionApiResponse
+import retrofit2.Response
 
 class Repository(
     private val apiService: ApiService
 ) {
 
-    suspend fun getQuestionsByCategory(token: String, category: Int, count: Int = 5) =
-        apiService.getQuestionsByCategory(count, category, token)
-
-    suspend fun getSessionToken() =
-        apiService.getSessionToken("request")
-
-    suspend fun resetSessionToken(token: String) =
-        apiService.getSessionToken("reset", token)
+    suspend fun getQuestionsByCategory(
+        category: Int,
+        difficulty: String,
+        count: Int = 10
+    ): Response<QuestionApiResponse> {
+        return apiService.getQuestionsByCategory(count, category, difficulty)
+    }
 
 }

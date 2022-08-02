@@ -50,7 +50,11 @@ class NetworkInterceptor @Inject constructor(@ApplicationContext context: Contex
         } else if (!isInternetAvailable()) {
             throw NoConnectivityException("No internet available, please check your connected WIFi or Data")
         } else {
-            chain.proceed(chain.request())
+            try {
+                chain.proceed(chain.request().newBuilder().url(chain.request().url).build())
+            } catch (e: Exception) {
+                throw e
+            }
         }
     }
 

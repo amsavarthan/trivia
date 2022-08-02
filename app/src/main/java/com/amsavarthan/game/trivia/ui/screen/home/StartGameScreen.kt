@@ -1,13 +1,17 @@
 package com.amsavarthan.game.trivia.ui.screen.home
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,11 +20,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.amsavarthan.game.trivia.ui.navigation.HomeScreens
-import com.amsavarthan.game.trivia.ui.navigation.asScreen
-import com.amsavarthan.game.trivia.ui.navigation.name
-import com.amsavarthan.game.trivia.ui.screen.home.modes.CasualModeConfig
-import com.amsavarthan.game.trivia.ui.screen.home.modes.DuelModeConfig
-import com.amsavarthan.game.trivia.ui.screen.home.modes.QuickModeConfig
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 
@@ -33,46 +32,50 @@ fun StartGameScreen(
 ) {
 
     val navController = rememberNavController()
-    var destination by remember { mutableStateOf(HomeScreens.CHOOSE_MODE.name()) }
 
-    navController.addOnDestinationChangedListener { _, dest, _ ->
-        if (dest.route == null) return@addOnDestinationChangedListener
-        destination = dest.route!!.asScreen().name()
-    }
-
-    ScreenScaffold(
-        backButton = {
-            BackButton(destination) {
-                if (!navController.navigateUp()) onBack()
-            }
-        }
-    ) {
-        NavHost(
-            navController = navController,
-            startDestination = HomeScreens.CHOOSE_MODE.route
-        ) {
-            composable(HomeScreens.CHOOSE_MODE.route) {
-                ChooseModeScreen(homeScreenViewModel, navController)
-            }
-            composable(HomeScreens.QUICK_MODE.route) {
-                QuickModeConfig(homeScreenViewModel, gameScreenViewModel, parentNavController)
-            }
-            composable(HomeScreens.CASUAL_MODE.route) {
-                CasualModeConfig(homeScreenViewModel, gameScreenViewModel, parentNavController)
-            }
-            composable(HomeScreens.DUEL_MODE.route) {
-                DuelModeConfig(parentNavController)
-            }
-        }
+    LaunchedEffect(Unit) {
+        if (gameScreenViewModel.difficultyMode.isBlank()) navController.popBackStack(
+            HomeScreens.CATEGORY_SCREEN.route,
+            true
+        )
     }
 
     BackHandler {
         if (!navController.navigateUp()) onBack()
     }
+
+    ScreenScaffold(onBack = {
+        if (!navController.navigateUp()) onBack()
+    }) {
+        NavHost(
+            navController = navController,
+            startDestination = HomeScreens.DIFFICULTY_SCREEN.route
+        ) {
+            composable(HomeScreens.DIFFICULTY_SCREEN.route) {
+                ChooseDifficultyScreen(homeScreenViewModel, gameScreenViewModel, navController)
+            }
+            composable(HomeScreens.CATEGORY_SCREEN.route) {
+                ChooseCategoryScreen(homeScreenViewModel, parentNavController)
+            }
+        }
+    }
+
+}
+
+
+@Composable
+private fun ScreenScaffold(
+    onBack: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        BackButton(onClick = onBack)
+        content()
+    }
 }
 
 @Composable
-private fun BackButton(text: String, onClick: () -> Unit) {
+private fun BackButton(onClick: () -> Unit) {
     FilledTonalButton(
         modifier = Modifier.padding(
             top = 24.dp,
@@ -83,18 +86,7 @@ private fun BackButton(text: String, onClick: () -> Unit) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(imageVector = Icons.Filled.ChevronLeft, contentDescription = "Go back")
-            Text(text = text)
+            Text(text = "GO BACK")
         }
-    }
-}
-
-@Composable
-private fun ScreenScaffold(
-    backButton: @Composable ColumnScope.() -> Unit,
-    content: @Composable () -> Unit
-) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        backButton()
-        content()
     }
 }

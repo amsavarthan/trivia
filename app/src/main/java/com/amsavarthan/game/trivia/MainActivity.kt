@@ -10,23 +10,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.amsavarthan.game.trivia.data.models.categories
 import com.amsavarthan.game.trivia.ui.navigation.ARG_CATEGORY_ID
 import com.amsavarthan.game.trivia.ui.navigation.Screens
+import com.amsavarthan.game.trivia.ui.screen.CountDownScreen
+import com.amsavarthan.game.trivia.ui.screen.GameScreen
 import com.amsavarthan.game.trivia.ui.screen.ResultScreen
 import com.amsavarthan.game.trivia.ui.screen.home.HomeScreen
-import com.amsavarthan.game.trivia.ui.screen.screen.CountDownScreen
-import com.amsavarthan.game.trivia.ui.screen.screen.GameScreen
 import com.amsavarthan.game.trivia.ui.theme.AppTheme
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
-import com.amsavarthan.game.trivia.worker.EnergyRefillWorker
 import com.google.accompanist.insets.ProvideWindowInsets
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -51,30 +46,22 @@ class MainActivity : ComponentActivity() {
                         GameScreen(gameScreenViewModel, navController)
                     }
                     composable(Screens.RESULT_SCREEN.route) {
-                        ResultScreen(gameScreenViewModel, navController)
+                        ResultScreen(homeScreenViewModel,gameScreenViewModel, navController)
                     }
                     composable(
                         Screens.COUNT_DOWN.route,
                         arguments = listOf(navArgument(ARG_CATEGORY_ID) { type = NavType.IntType })
                     ) {
-                        val categoryId =
-                            it.arguments?.getInt(ARG_CATEGORY_ID) ?: categories.first().id
-                        CountDownScreen(gameScreenViewModel, navController, categoryId)
+                        val categoryId = it.arguments?.getInt(ARG_CATEGORY_ID)
+                        CountDownScreen(
+                            viewModel = gameScreenViewModel,
+                            navController = navController,
+                            categoryId = categoryId ?: categories.first().id
+                        )
                     }
                 }
             }
         }
-        initWorker()
-    }
-
-    private fun initWorker() {
-        val request = PeriodicWorkRequestBuilder<EnergyRefillWorker>(15, TimeUnit.MINUTES).build()
-        val workManager = WorkManager.getInstance(applicationContext)
-        workManager.enqueueUniquePeriodicWork(
-            "energy-refill-task",
-            ExistingPeriodicWorkPolicy.KEEP,
-            request
-        )
     }
 
 }

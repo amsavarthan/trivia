@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.ui.screen.screen
+package com.amsavarthan.game.trivia.ui.screen
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -24,6 +24,10 @@ import com.amsavarthan.game.trivia.ui.navigation.Screens
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import kotlinx.coroutines.delay
 
+enum class ResponseStatus {
+    SUCCESS, FAILED, IDLE
+}
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CountDownScreen(
@@ -33,17 +37,10 @@ fun CountDownScreen(
 ) {
 
     val context = LocalContext.current
-    val energy by viewModel.energy.collectAsState()
-    val isLoaded by viewModel.hasQuestionsLoaded.collectAsState(false)
+    val status by viewModel.responseStatus.collectAsState(false)
     var count by remember { mutableStateOf(3) }
 
     LaunchedEffect(Unit) {
-
-        if (energy <= 0) {
-            navController.navigateUp()
-            Toast.makeText(context, "Insufficient Energy", Toast.LENGTH_SHORT).show()
-            return@LaunchedEffect
-        }
 
         //for countdown
         delay(900)
@@ -56,14 +53,23 @@ fun CountDownScreen(
 
     }
 
-    LaunchedEffect(isLoaded) {
-        if (!isLoaded) return@LaunchedEffect
-        viewModel.decreaseEnergy()
-        navController.navigate(Screens.GAME_SCREEN.route) {
-            launchSingleTop = true
-            popUpTo(Screens.COUNT_DOWN.route) {
-                inclusive = true
+    LaunchedEffect(status) {
+        when (status) {
+            ResponseStatus.FAILED -> {
+                viewModel.clearQuestions()
+                navController.navigateUp()
+                Toast.makeText(context, "Some error occurred", Toast.LENGTH_SHORT).show()
             }
+            ResponseStatus.SUCCESS
+            -> {
+                navController.navigate(Screens.GAME_SCREEN.route) {
+                    launchSingleTop = true
+                    popUpTo(Screens.COUNT_DOWN.route) {
+                        inclusive = true
+                    }
+                }
+            }
+            else -> Unit
         }
     }
 
@@ -98,7 +104,6 @@ fun CountDownScreen(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun AnimatedVisibilityScope.CountDown(count: Int) {
-
     Box(
         modifier = Modifier
             .size(150.dp)
@@ -118,5 +123,4 @@ private fun AnimatedVisibilityScope.CountDown(count: Int) {
             )
         }
     }
-
 }
