@@ -3,6 +3,7 @@ package com.amsavarthan.game.trivia.ui.screen.home.modes
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -12,9 +13,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Badge
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -27,8 +30,9 @@ import com.amsavarthan.game.trivia.data.models.Category
 import com.amsavarthan.game.trivia.data.models.categories
 import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
 import com.amsavarthan.game.trivia.ui.common.anim.SlideOnChange
-import com.amsavarthan.game.trivia.ui.navigation.Screens
+import com.amsavarthan.game.trivia.ui.navigation.AppScreen
 import com.amsavarthan.game.trivia.ui.navigation.createRoute
+import com.amsavarthan.game.trivia.viewmodel.CasualModeUIState
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 
@@ -40,8 +44,9 @@ fun CasualModeConfig(
 ) {
 
     val context = LocalContext.current
-    val energy by gameScreenViewModel.energy.collectAsState()
-    val selectedIndex by homeScreenViewModel.casualModeSelectedIndex.collectAsState()
+    val energy by gameScreenViewModel.energy.observeAsState(0)
+
+    val uiState by homeScreenViewModel.casualModeUIState.observeAsState(CasualModeUIState())
     var triggerStartGame by remember { mutableStateOf(false) }
 
     LaunchedEffect(triggerStartGame) {
@@ -50,7 +55,7 @@ fun CasualModeConfig(
             Toast.makeText(context, "Insufficient Energy", Toast.LENGTH_SHORT).show()
             return@LaunchedEffect
         }
-        navController.navigate(Screens.COUNT_DOWN.createRoute(homeScreenViewModel.categoryId)) {
+        navController.navigate(AppScreen.CountDown.createRoute(homeScreenViewModel.categoryId)) {
             launchSingleTop = true
         }
     }
@@ -59,16 +64,15 @@ fun CasualModeConfig(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            SelectedCategoryDetail(selectedIndex, triggerStartGame)
-            CategoryList(selectedIndex, triggerStartGame) { clickedIndex ->
-                triggerStartGame = (selectedIndex == clickedIndex)
-                homeScreenViewModel.updateCasualModeSelectedIndex(clickedIndex)
+            SelectedCategoryDetail(uiState.selectedIndex, triggerStartGame)
+            CategoryList(uiState.selectedIndex, triggerStartGame) { clickedIndex ->
+                triggerStartGame = (uiState.selectedIndex == clickedIndex)
+                homeScreenViewModel.updateCasualModeUIState(CasualModeUIState(clickedIndex))
             }
         }
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CategoryList(selectedIndex: Int, triggerStartGame: Boolean, onItemClick: (Int) -> Unit) {
     val listState = rememberLazyListState()
@@ -77,7 +81,7 @@ fun CategoryList(selectedIndex: Int, triggerStartGame: Boolean, onItemClick: (In
         modifier = Modifier.fillMaxWidth(),
         visible = !triggerStartGame,
         enter = fadeIn() + slideInVertically { height -> height },
-        exit = fadeOut() + slideOutVertically { height -> height }
+        exit = fadeOut() + slideOutVertically(animationSpec = tween(durationMillis = 500)) { height -> height },
     ) {
         LazyRow(
             state = listState,
@@ -94,7 +98,7 @@ fun CategoryList(selectedIndex: Int, triggerStartGame: Boolean, onItemClick: (In
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun ColumnScope.SelectedCategoryDetail(selectedIndex: Int, triggerStartGame: Boolean) {
 
@@ -120,7 +124,7 @@ private fun ColumnScope.SelectedCategoryDetail(selectedIndex: Int, triggerStartG
 
             SlideOnChange(
                 targetState = selectedIndex,
-                direction = SlideDirection.ADAPTIVE
+                direction = SlideDirection.Adaptive
             ) { index ->
                 Text(
                     text = categories[index].emoji,

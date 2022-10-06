@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.ui.screen.screen
+package com.amsavarthan.game.trivia.ui.screen
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -25,9 +26,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
 import com.amsavarthan.game.trivia.ui.common.anim.SlideOnChange
-import com.amsavarthan.game.trivia.ui.navigation.Screens
+import com.amsavarthan.game.trivia.ui.navigation.AppScreen
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
-import com.google.accompanist.insets.systemBarsPadding
 import kotlinx.coroutines.delay
 
 @Composable
@@ -36,7 +36,7 @@ fun GameScreen(
     navController: NavController
 ) {
 
-    val data by viewModel.currentQuestion.collectAsState()
+    val data by viewModel.currentQuestion.observeAsState(0 to null)
     val (questionNumber, questionData) = data
 
     var showDialog by remember { mutableStateOf(false) }
@@ -67,9 +67,9 @@ fun GameScreen(
                     viewModel.calculateScore(answers.getOrNull(selectedAnswerIndex))
                 },
                 onGameComplete = {
-                    navController.navigate(Screens.RESULT_SCREEN.route) {
+                    navController.navigate(AppScreen.Result.route) {
                         launchSingleTop = true
-                        popUpTo(Screens.GAME_SCREEN.route) {
+                        popUpTo(AppScreen.Game.route) {
                             inclusive = true
                         }
                     }
@@ -88,7 +88,7 @@ fun GameScreen(
                         )
                         SlideOnChange(
                             targetState = questionNumber,
-                            direction = SlideDirection.ADAPTIVE
+                            direction = SlideDirection.Adaptive
                         ) {
                             Text(
                                 text = questionData.question,

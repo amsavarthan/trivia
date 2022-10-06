@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.ui.screen.screen
+package com.amsavarthan.game.trivia.ui.screen
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -12,6 +12,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
 import com.amsavarthan.game.trivia.ui.common.anim.SlideOnChange
-import com.amsavarthan.game.trivia.ui.navigation.Screens
+import com.amsavarthan.game.trivia.ui.navigation.AppScreen
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import kotlinx.coroutines.delay
 
@@ -33,8 +34,8 @@ fun CountDownScreen(
 ) {
 
     val context = LocalContext.current
-    val energy by viewModel.energy.collectAsState()
-    val isLoaded by viewModel.hasQuestionsLoaded.collectAsState(false)
+    val energy by viewModel.energy.observeAsState(0)
+    val isLoaded by viewModel.hasQuestionsLoaded.observeAsState(false)
     var count by remember { mutableStateOf(3) }
 
     LaunchedEffect(Unit) {
@@ -59,9 +60,9 @@ fun CountDownScreen(
     LaunchedEffect(isLoaded) {
         if (!isLoaded) return@LaunchedEffect
         viewModel.decreaseEnergy()
-        navController.navigate(Screens.GAME_SCREEN.route) {
+        navController.navigate(AppScreen.Game.route) {
             launchSingleTop = true
-            popUpTo(Screens.COUNT_DOWN.route) {
+            popUpTo(AppScreen.CountDown.route) {
                 inclusive = true
             }
         }
@@ -109,7 +110,7 @@ private fun AnimatedVisibilityScope.CountDown(count: Int) {
     ) {
         SlideOnChange(
             targetState = count,
-            direction = SlideDirection.DOWN
+            direction = SlideDirection.Down
         ) { targetCount ->
             Text(
                 text = "$targetCount",

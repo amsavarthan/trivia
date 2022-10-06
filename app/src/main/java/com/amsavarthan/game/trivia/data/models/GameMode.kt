@@ -1,6 +1,6 @@
 package com.amsavarthan.game.trivia.data.models
 
-import com.amsavarthan.game.trivia.ui.navigation.HomeScreens
+import com.amsavarthan.game.trivia.ui.navigation.HomeScreen
 
 data class GameMode(
     val emoji: String,
@@ -14,18 +14,18 @@ val gameModes = listOf(
         emoji = "⚡️",
         title = "Quick Mode",
         description = "Play a game right away on category chosen randomly.",
-        route = HomeScreens.QUICK_MODE.route
+        route = HomeScreen.QuickMode.route
     ),
     GameMode(
         emoji = "🤠",
         title = "Casual Mode",
         description = "You get to choose the category of your own choice.",
-        route = HomeScreens.CASUAL_MODE.route
+        route = HomeScreen.CasualMode.route
     ),
-    GameMode(
-        emoji = "🤝",
-        title = "Duel Mode",
-        description = "Compete and have fun playing with your friends.",
-        route = HomeScreens.DUEL_MODE.route
-    ),
+//    GameMode(
+//        emoji = "🤝",
+//        title = "Duel Mode",
+//        description = "Compete and have fun playing with your friends.",
+//        route = HomeScreens.DuelMode.route
+//    ),
 )

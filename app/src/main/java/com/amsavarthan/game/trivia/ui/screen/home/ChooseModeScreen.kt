@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,7 +33,7 @@ fun ChooseModeScreen(
     ) {
         gameModes.forEach { item ->
             GameMode(item) {
-                viewModel.resetIndices()
+                viewModel.resetUIStates()
                 navController.navigate(item.route)
             }
         }
@@ -41,6 +41,7 @@ fun ChooseModeScreen(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GameMode(
     mode: GameMode,
@@ -50,7 +51,6 @@ private fun GameMode(
     Surface(
         onClick = onClick,
         color = MaterialTheme.colorScheme.surface,
-        indication = rememberRipple(),
         shadowElevation = 0.dp,
         modifier = Modifier
             .padding(vertical = 8.dp)

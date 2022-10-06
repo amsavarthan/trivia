@@ -5,13 +5,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
-import com.google.accompanist.insets.statusBarsPadding
 import nl.dionsegijn.konfetti.compose.KonfettiView
 import nl.dionsegijn.konfetti.compose.OnParticleSystemUpdateListener
 import nl.dionsegijn.konfetti.core.Party
@@ -40,7 +38,6 @@ enum class Stat {
     INCORRECT;
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ResultScreen(viewModel: GameScreenViewModel, navController: NavController) {
 
@@ -146,7 +143,7 @@ fun ResultScreen(viewModel: GameScreenViewModel, navController: NavController) {
             Column {
                 LazyVerticalGrid(
                     modifier = Modifier.padding(bottom = 32.dp, top = 24.dp),
-                    cells = GridCells.Fixed(2)
+                    columns = GridCells.Fixed(2)
                 ) {
                     items(stats.toList()) { (title, value) ->
                         GameStat(title.name, value)

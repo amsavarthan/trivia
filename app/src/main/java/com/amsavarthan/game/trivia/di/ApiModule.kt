@@ -16,61 +16,72 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
 
+private const val BASE_URL = "https://opentdb.com/"
+
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
 
-    private const val BASE_URL = "https://opentdb.com/"
-
     @Singleton
     @Provides
-    fun providesHttpLoggingInterceptor(): HttpLoggingInterceptor =
-        HttpLoggingInterceptor().apply {
+    fun providesHttpLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
+    }
 
     @Singleton
     @Provides
-    fun providesNetworkInterceptor(@ApplicationContext context: Context): NetworkInterceptor =
-        NetworkInterceptor(context)
+    fun providesNetworkInterceptor(@ApplicationContext context: Context): NetworkInterceptor {
+        return NetworkInterceptor(context)
+    }
 
     @Singleton
     @Provides
     fun providesOkHttpClient(
         httpLoggingInterceptor: HttpLoggingInterceptor,
         networkInterceptor: NetworkInterceptor
-    ): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(httpLoggingInterceptor)
-        .addInterceptor(networkInterceptor)
-        .build()
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(networkInterceptor)
+            .addInterceptor(httpLoggingInterceptor)
+            .build()
+    }
 
     @Singleton
     @Provides
-    fun providesMoshiFactory(): MoshiConverterFactory =
-        MoshiConverterFactory.create(
-            Moshi.Builder().build()
-        )
+    fun providesMoshiFactory(): MoshiConverterFactory {
+        val moshi = Moshi.Builder().build()
+        return MoshiConverterFactory.create(moshi)
+    }
+
 
     @Singleton
     @Provides
     fun providesRetrofit(
         moshiConverterFactory: MoshiConverterFactory,
         okHttpClient: OkHttpClient
-    ): Retrofit =
-        Retrofit.Builder()
+    ): Retrofit {
+        return Retrofit.Builder()
             .client(okHttpClient)
             .addConverterFactory(moshiConverterFactory)
             .baseUrl(BASE_URL)
             .build()
+    }
+
 
     @Singleton
     @Provides
-    fun providesApiService(retrofit: Retrofit): ApiService =
-        retrofit.create(ApiService::class.java)
+    fun providesApiService(retrofit: Retrofit): ApiService {
+        return retrofit.create(ApiService::class.java)
+    }
+
 
     @Singleton
     @Provides
-    fun providesRepository(apiService: ApiService): Repository =
-        Repository(apiService)
+    fun providesRepository(apiService: ApiService): Repository {
+        return Repository(apiService)
+    }
+
 
 }

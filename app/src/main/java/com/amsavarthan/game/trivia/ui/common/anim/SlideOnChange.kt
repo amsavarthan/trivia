@@ -3,10 +3,10 @@ package com.amsavarthan.game.trivia.ui.common.anim
 import androidx.compose.animation.*
 import androidx.compose.runtime.Composable
 
-enum class SlideDirection {
-    UP,
-    DOWN,
-    ADAPTIVE;
+sealed class SlideDirection {
+    object Up : SlideDirection()
+    object Down : SlideDirection()
+    object Adaptive : SlideDirection()
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -20,7 +20,7 @@ fun SlideOnChange(
     AnimatedContent(
         targetState = targetState,
         transitionSpec = {
-            getTransistionSpec(
+            getTransitionSpec(
                 direction = direction,
                 clipToContainer = clipToContainer
             )
@@ -31,25 +31,25 @@ fun SlideOnChange(
 }
 
 @OptIn(ExperimentalAnimationApi::class)
-private fun AnimatedContentScope<Int>.getTransistionSpec(
+private fun AnimatedContentScope<Int>.getTransitionSpec(
     direction: SlideDirection,
     clipToContainer: Boolean
 ) = when (direction) {
-    SlideDirection.UP -> {
-        slideInVertically(initialOffsetY = { height -> height }) + fadeIn() with
-                slideOutVertically(targetOffsetY = { height -> -height }) + fadeOut()
+    SlideDirection.Up -> {
+        fadeIn() + slideInVertically(initialOffsetY = { height -> height }) with
+                fadeOut() + slideOutVertically(targetOffsetY = { height -> -height })
     }
-    SlideDirection.DOWN -> {
-        slideInVertically(initialOffsetY = { height -> -height }) + fadeIn() with
-                slideOutVertically(targetOffsetY = { height -> height }) + fadeOut()
+    SlideDirection.Down -> {
+        fadeIn() + slideInVertically(initialOffsetY = { height -> -height }) with
+                fadeOut() + slideOutVertically(targetOffsetY = { height -> height })
     }
-    SlideDirection.ADAPTIVE -> {
+    SlideDirection.Adaptive -> {
         if (targetState > initialState) {
-            slideInHorizontally(initialOffsetX = { height -> height }) + fadeIn() with
-                    slideOutHorizontally(targetOffsetX = { height -> -height }) + fadeOut()
+            fadeIn() + slideInHorizontally(initialOffsetX = { height -> height }) with
+                    fadeOut() + slideOutHorizontally(targetOffsetX = { height -> -height })
         } else {
-            slideInHorizontally(initialOffsetX = { height -> -height }) + fadeIn() with
-                    slideOutHorizontally(targetOffsetX = { height -> height }) + fadeOut()
+            fadeIn() + slideInHorizontally(initialOffsetX = { height -> -height }) with
+                    fadeOut() + slideOutHorizontally(targetOffsetX = { height -> height })
         }
     }
 } using SizeTransform(clip = clipToContainer)

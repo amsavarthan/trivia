@@ -6,6 +6,7 @@ import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,9 +17,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,15 +30,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.amsavarthan.game.trivia.viewmodel.ButtonState
 import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
 import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
-import com.google.accompanist.insets.navigationBarsPadding
-import com.google.accompanist.insets.statusBarsHeight
-
-enum class ButtonState {
-    EXPANDED,
-    NORMAL;
-}
 
 @Composable
 fun HomeScreen(
@@ -48,10 +42,12 @@ fun HomeScreen(
 ) {
 
     val scrollState = rememberScrollState()
-    val buttonState by homeScreenViewModel.buttonState.collectAsState()
+    var buttonState by remember {
+        mutableStateOf<ButtonState>(ButtonState.Normal)
+    }
 
-    val gamesPlayed by gameScreenViewModel.gamesPlayed.collectAsState()
-    val energy by gameScreenViewModel.energy.collectAsState()
+    val gamesPlayed by gameScreenViewModel.gamesPlayed.observeAsState(0)
+    val energy by gameScreenViewModel.energy.observeAsState(0)
 
     Box(modifier = Modifier.fillMaxHeight()) {
         Column(
@@ -66,7 +62,7 @@ fun HomeScreen(
         AnimatedContainer(
             targetState = buttonState,
             onExpandAction = {
-                homeScreenViewModel.updateButtonState(ButtonState.EXPANDED)
+                buttonState = ButtonState.Expanded
             },
             collapsedContent = { CollapsedContent() },
             expandedContent = {
@@ -75,7 +71,7 @@ fun HomeScreen(
                     gameScreenViewModel,
                     parentNavController,
                     onBack = {
-                        homeScreenViewModel.updateButtonState(ButtonState.NORMAL)
+                        buttonState = ButtonState.Normal
                     }
                 )
             },
@@ -112,42 +108,42 @@ private fun BoxScope.AnimatedContainer(
 
     val padding by transition.animateDp(label = "Play Now Button Padding") { state ->
         when (state) {
-            ButtonState.NORMAL -> 24.dp
-            ButtonState.EXPANDED -> 0.dp
+            ButtonState.Normal -> 24.dp
+            ButtonState.Expanded -> 0.dp
         }
     }
 
     val height by transition.animateDp(
         label = "Play Now Button Height",
-        transitionSpec = { if (initialState == ButtonState.NORMAL) tween(400) else tween(350) }) { state ->
+        transitionSpec = { if (initialState == ButtonState.Normal) tween(400) else tween(350) }) { state ->
         when (state) {
-            ButtonState.NORMAL -> 100.dp
-            ButtonState.EXPANDED -> LocalConfiguration.current.screenHeightDp.dp
+            ButtonState.Normal -> 100.dp
+            ButtonState.Expanded -> LocalConfiguration.current.screenHeightDp.dp
         }
     }
 
     val maxWidth by transition.animateDp(label = "Play Now Button MaxWidth") { state ->
         when (state) {
-            ButtonState.NORMAL -> 500.dp
-            ButtonState.EXPANDED -> Dp.Unspecified
+            ButtonState.Normal -> 500.dp
+            ButtonState.Expanded -> Dp.Unspecified
         }
     }
 
     val corners by transition.animateFloat(label = "Play Now Button Corners") { state ->
         when (state) {
-            ButtonState.NORMAL -> 100f
-            ButtonState.EXPANDED -> 0f
+            ButtonState.Normal -> 100f
+            ButtonState.Expanded -> 0f
         }
     }
 
     val color by transition.animateColor(
         label = "Play Now Button Background Color",
         transitionSpec = {
-            if (initialState == ButtonState.EXPANDED) tween(delayMillis = 100) else spring()
+            if (initialState == ButtonState.Expanded) tween(delayMillis = 100) else spring()
         }) { state ->
         when (state) {
-            ButtonState.NORMAL -> MaterialTheme.colorScheme.primary
-            ButtonState.EXPANDED -> MaterialTheme.colorScheme.background
+            ButtonState.Normal -> MaterialTheme.colorScheme.primary
+            ButtonState.Expanded -> MaterialTheme.colorScheme.background
         }
     }
 
@@ -158,14 +154,19 @@ private fun BoxScope.AnimatedContainer(
             .fillMaxWidth()
             .height(height)
             .navigationBarsPadding()
-            .padding(padding),
-        onClick = onExpandAction,
-        indication = if (targetState == ButtonState.NORMAL) rememberRipple() else null,
+            .padding(padding)
+            .clickable(
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                indication = if (targetState == ButtonState.Normal) rememberRipple() else null,
+                onClick = onExpandAction
+            ),
         color = color,
         shape = RoundedCornerShape(corners),
     ) {
         AnimatedVisibility(
-            visible = targetState == ButtonState.NORMAL,
+            visible = targetState == ButtonState.Normal,
             enter = fadeIn(
                 animationSpec = tween(
                     delayMillis = 100,
@@ -176,7 +177,7 @@ private fun BoxScope.AnimatedContainer(
             collapsedContent()
         }
         AnimatedVisibility(
-            visible = targetState == ButtonState.EXPANDED,
+            visible = targetState == ButtonState.Expanded,
             enter = fadeIn(
                 animationSpec = tween(
                     delayMillis = 200,
@@ -194,7 +195,14 @@ private fun BoxScope.AnimatedContainer(
 @Composable
 private fun User(name: String, gamesPlayed: Int, energy: Int) {
 
-    Spacer(modifier = Modifier.statusBarsHeight(48.dp))
+    Spacer(
+        modifier = Modifier
+            .windowInsetsTopHeight(
+                WindowInsets.statusBars.add(
+                    WindowInsets(top = 48.dp)
+                )
+            )
+    )
     Text(
         text = "Hello,",
         style = MaterialTheme.typography.titleLarge,
@@ -256,17 +264,16 @@ private fun RowScope.UserDetailItem(
         modifier = Modifier
             .weight(1f)
             .padding(paddingValues)
-            .height(100.dp),
-        onClick = { /*TODO*/ },
+            .height(100.dp)
+            .clickable { },
         shape = shape,
-        indication = rememberRipple(),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Column(
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxHeight(),
-            verticalArrangement = Arrangement.spacedBy(4.dp,Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(

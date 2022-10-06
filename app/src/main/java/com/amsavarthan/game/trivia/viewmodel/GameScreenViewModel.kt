@@ -1,6 +1,8 @@
 package com.amsavarthan.game.trivia.viewmodel
 
 import android.text.Html
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amsavarthan.game.trivia.data.api.interceptor.NoConnectivityException
@@ -11,8 +13,6 @@ import com.amsavarthan.game.trivia.data.preference.GameDatastore
 import com.amsavarthan.game.trivia.data.preference.TokenDatastore
 import com.amsavarthan.game.trivia.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,39 +24,43 @@ class GameScreenViewModel @Inject constructor(
     private val gameDatastore: GameDatastore,
 ) : ViewModel() {
 
-    private val _gamesPlayed = MutableStateFlow(0)
-    val gamesPlayed get() = _gamesPlayed.asStateFlow()
+    private val _gamesPlayed = MutableLiveData(0)
+    val gamesPlayed: LiveData<Int>
+        get() = _gamesPlayed
 
     init {
         viewModelScope.launch {
-            gameDatastore.gamesPlayedPreferencesFlow.collectLatest { count ->
-                _gamesPlayed.emit(count)
+            gameDatastore.gamesPlayedPreferencesFlow.collect { count ->
+                _gamesPlayed.value = count
             }
         }
     }
 
-    private val _energy = MutableStateFlow(0)
-    val energy get() = _energy.asStateFlow()
+    private val _energy = MutableLiveData(0)
+    val energy: LiveData<Int>
+        get() = _energy
 
     init {
         viewModelScope.launch {
             gameDatastore.energyPreferencesFlow.collectLatest { value ->
-                _energy.emit(value)
+                _energy.value = value
             }
         }
     }
+
+    private val _hasQuestionsLoaded = MutableLiveData(false)
+    val hasQuestionsLoaded: LiveData<Boolean>
+        get() = _hasQuestionsLoaded
+
+    private val _currentQuestion = MutableLiveData<Pair<Int, Question?>>(0 to null)
+    val currentQuestion: LiveData<Pair<Int, Question?>>
+        get() = _currentQuestion
 
     private var _gameResult = mutableListOf<GameResult>()
     val gameResult get() = _gameResult.toList()
 
     private var questions = emptyList<Question>()
     private var currentQuestionIndex = 0
-
-    private val _hasQuestionsLoaded = MutableStateFlow(false)
-    val hasQuestionsLoaded get() = _hasQuestionsLoaded.asStateFlow()
-
-    private val _currentQuestion = MutableStateFlow<Pair<Int, Question?>>(0 to null)
-    val currentQuestion get() = _currentQuestion.asStateFlow()
 
     private fun initSession() = viewModelScope.launch {
         try {
@@ -89,18 +93,16 @@ class GameScreenViewModel @Inject constructor(
             }
         }
 
-        _currentQuestion.emit(currentQuestionIndex to questions.getOrNull(currentQuestionIndex))
-        _hasQuestionsLoaded.emit(true)
+        _currentQuestion.value = currentQuestionIndex to questions.getOrNull(currentQuestionIndex)
+        _hasQuestionsLoaded.value = true
     }
 
     fun clearQuestions() {
-        viewModelScope.launch {
-            _hasQuestionsLoaded.emit(false)
-            _currentQuestion.emit(0 to null)
-            questions = emptyList()
-            currentQuestionIndex = 0
-            _gameResult.clear()
-        }
+        _hasQuestionsLoaded.value = false
+        _currentQuestion.value = 0 to null
+        questions = emptyList()
+        currentQuestionIndex = 0
+        _gameResult.clear()
     }
 
     fun getQuestions(categoryId: Int) {
