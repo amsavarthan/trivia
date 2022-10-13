@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -24,19 +23,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
-import com.amsavarthan.game.trivia.ui.common.anim.SlideOnChange
+import com.amsavarthan.game.trivia.ui.anim.SlideDirection
+import com.amsavarthan.game.trivia.ui.anim.SlideOnChange
 import com.amsavarthan.game.trivia.ui.navigation.AppScreen
-import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
+import com.amsavarthan.game.trivia.ui.viewmodel.GameViewModel
 import kotlinx.coroutines.delay
 
 @Composable
 fun GameScreen(
-    viewModel: GameScreenViewModel,
+    gameViewModel: GameViewModel,
     navController: NavController
 ) {
 
-    val data by viewModel.currentQuestion.observeAsState(0 to null)
+    val data by gameViewModel.currentQuestion
     val (questionNumber, questionData) = data
 
     var showDialog by remember { mutableStateOf(false) }
@@ -46,10 +45,7 @@ fun GameScreen(
     LaunchedEffect(questionData) {
         if (questionData == null) return@LaunchedEffect
         selectedAnswerIndex = -1
-        answers = buildList {
-            addAll(questionData.incorrectAnswers)
-            add(questionData.correctAnswer)
-        }.shuffled()
+        answers = (questionData.incorrectAnswers + questionData.correctAnswer).shuffled()
     }
 
     Column(
@@ -62,10 +58,7 @@ fun GameScreen(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Timer(
-                viewModel = viewModel,
-                onTimeout = {
-                    viewModel.calculateScore(answers.getOrNull(selectedAnswerIndex))
-                },
+                onTimeout = { gameViewModel.getNextQuestion(answers.getOrNull(selectedAnswerIndex)) },
                 onGameComplete = {
                     navController.navigate(AppScreen.Result.route) {
                         launchSingleTop = true
@@ -73,8 +66,7 @@ fun GameScreen(
                             inclusive = true
                         }
                     }
-                }
-            )
+                })
             AnimatedVisibility(visible = questionData != null) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     questionData?.let { questionData ->
@@ -82,8 +74,7 @@ fun GameScreen(
                             text = "QUESTION ${questionNumber + 1}",
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.titleSmall.copy(
-                                fontWeight = FontWeight.Medium,
-                                letterSpacing = 2.sp
+                                fontWeight = FontWeight.Medium, letterSpacing = 2.sp
                             ),
                         )
                         SlideOnChange(
@@ -117,7 +108,7 @@ fun GameScreen(
             text = { Text(text = "Are you sure do want to stop playing? You will lose all your progress.") },
             confirmButton = {
                 Button(onClick = {
-                    viewModel.clearQuestions()
+                    gameViewModel.completeGame(forced = true)
                     showDialog = false
                     navController.navigateUp()
                 }) {
@@ -128,21 +119,23 @@ fun GameScreen(
                 OutlinedButton(onClick = { showDialog = false }) {
                     Text(text = "No")
                 }
-            }
-        )
+            })
     }
 
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun AnswersLayout(answers: List<String>, selectedIndex: Int, onClick: (Int) -> Unit) {
+private fun AnswersLayout(
+    answers: List<String>,
+    selectedIndex: Int,
+    onClick: (Int) -> Unit
+) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         itemsIndexed(answers) { index, answer ->
 
             val transition = updateTransition(
-                targetState = index == selectedIndex,
-                label = "Answer Item Transitions"
+                targetState = index == selectedIndex, label = "Answer Item Transitions"
             )
 
             val percent by transition.animateInt(
@@ -161,8 +154,7 @@ private fun AnswersLayout(answers: List<String>, selectedIndex: Int, onClick: (I
                         true -> MaterialTheme.colorScheme.primaryContainer
                         else -> MaterialTheme.colorScheme.secondaryContainer
                     }
-                }
-            )
+                })
 
             val textColor by transition.animateColor(
                 label = "Answer Item Text Color",
@@ -171,8 +163,7 @@ private fun AnswersLayout(answers: List<String>, selectedIndex: Int, onClick: (I
                         true -> MaterialTheme.colorScheme.onPrimaryContainer
                         else -> MaterialTheme.colorScheme.onSecondaryContainer
                     }
-                }
-            )
+                })
 
             Box(
                 modifier = Modifier
@@ -183,16 +174,13 @@ private fun AnswersLayout(answers: List<String>, selectedIndex: Int, onClick: (I
                     .background(background)
                     .clickable(onClick = { onClick(index) })
                     .padding(16.dp)
-                    .padding(horizontal = 16.dp),
-                contentAlignment = Center
+                    .padding(horizontal = 16.dp), contentAlignment = Center
             ) {
                 AnimatedContent(
                     targetState = answer,
                     transitionSpec = { fadeIn() with fadeOut() }) { text ->
                     Text(
-                        text = text,
-                        textAlign = TextAlign.Center,
-                        color = textColor
+                        text = text, textAlign = TextAlign.Center, color = textColor
                     )
                 }
             }
@@ -203,12 +191,11 @@ private fun AnswersLayout(answers: List<String>, selectedIndex: Int, onClick: (I
 
 @Composable
 private fun ColumnScope.Timer(
-    viewModel: GameScreenViewModel,
-    onTimeout: () -> Unit,
+    onTimeout: () -> Boolean,
     onGameComplete: () -> Unit
 ) {
 
-    var restartFlag by remember { mutableStateOf(false) }
+    var trigger by remember { mutableStateOf(false) }
     var progressValue by remember { mutableStateOf(1f) }
 
     val progressAnimationValue by animateFloatAsState(
@@ -216,20 +203,16 @@ private fun ColumnScope.Timer(
         animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
     )
 
-    LaunchedEffect(restartFlag) {
+    LaunchedEffect(trigger) {
         while (progressValue > 0f) {
             progressValue -= 0.05f
             delay(500)
         }
-
-        onTimeout()
-        delay(800)
-        if (viewModel.nextQuestion()) {
+        if (onTimeout()) {
             progressValue = 1.1f
-            restartFlag = !restartFlag
+            trigger = !trigger
             return@LaunchedEffect
         }
-
         onGameComplete()
     }
 

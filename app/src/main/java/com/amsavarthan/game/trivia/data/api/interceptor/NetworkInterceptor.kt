@@ -12,9 +12,12 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import javax.inject.Inject
 
-class NoConnectivityException(message: String) : IOException(message)
+class NoConnectivityException(message: String = "Please check your internet connection") :
+    IOException(message)
 
-class NetworkInterceptor @Inject constructor(@ApplicationContext context: Context) : Interceptor {
+class NetworkInterceptor @Inject constructor(
+    @ApplicationContext context: Context
+) : Interceptor {
 
     private val connectivityManager by lazy {
         ContextCompat.getSystemService(
@@ -31,27 +34,27 @@ class NetworkInterceptor @Inject constructor(@ApplicationContext context: Contex
                 || connection.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
     }
 
-    private fun isInternetAvailable() = try {
-        val timeoutMs = 1500
-        val sock = Socket()
-        val address = InetSocketAddress("8.8.8.8", 53)
+    private fun isInternetAvailable(): Boolean {
+        return try {
+            val timeoutMs = 1500
+            val sock = Socket()
+            val address = InetSocketAddress("8.8.8.8", 53)
 
-        sock.connect(address, timeoutMs)
-        sock.close()
+            sock.connect(address, timeoutMs)
+            sock.close()
 
-        true
-    } catch (e: IOException) {
-        false
+            true
+        } catch (e: IOException) {
+            false
+        }
     }
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        return if (!isConnectionAvailable()) {
-            throw NoConnectivityException("No network available, please check your WiFi or Data connection")
-        } else if (!isInternetAvailable()) {
-            throw NoConnectivityException("No internet available, please check your connected WIFi or Data")
-        } else {
-            chain.proceed(chain.request())
+        if (isConnectionAvailable() && isInternetAvailable()) {
+            return chain.proceed(chain.request())
         }
+
+        throw NoConnectivityException()
     }
 
 }

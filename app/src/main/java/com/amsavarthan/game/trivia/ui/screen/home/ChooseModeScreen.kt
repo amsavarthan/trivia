@@ -15,15 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.amsavarthan.game.trivia.data.models.GameMode
 import com.amsavarthan.game.trivia.data.models.gameModes
-import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
 
 @Composable
 fun ChooseModeScreen(
-    viewModel: HomeScreenViewModel,
-    navController: NavController
+    onItemClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -32,9 +29,8 @@ fun ChooseModeScreen(
             .verticalScroll(rememberScrollState())
     ) {
         gameModes.forEach { item ->
-            GameMode(item) {
-                viewModel.resetUIStates()
-                navController.navigate(item.route)
+            GameMode(item){
+                onItemClick(item.route)
             }
         }
     }

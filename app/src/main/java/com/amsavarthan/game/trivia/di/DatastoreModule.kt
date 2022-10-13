@@ -1,8 +1,12 @@
 package com.amsavarthan.game.trivia.di
 
 import android.content.Context
-import com.amsavarthan.game.trivia.data.preference.GameDatastore
-import com.amsavarthan.game.trivia.data.preference.TokenDatastore
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.dataStoreFile
+import com.amsavarthan.game.trivia.GamePreferences
+import com.amsavarthan.game.trivia.TokenPreferences
+import com.amsavarthan.game.trivia.data.preference.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,16 +14,49 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+private const val TOKEN_DATA_STORE_FILE_NAME = "token_prefs.proto"
+private const val GAME_DATA_STORE_FILE_NAME = "game_prefs.proto"
+
 @Module
 @InstallIn(SingletonComponent::class)
 class DatastoreModule {
 
     @Provides
     @Singleton
-    fun providesTokenDatastore(@ApplicationContext context: Context) = TokenDatastore(context)
+    fun providesTokenDatastore(@ApplicationContext context: Context): DataStore<TokenPreferences> {
+        return DataStoreFactory.create(
+            serializer = TokenPreferencesSerializer,
+            produceFile = {
+                context.dataStoreFile(TOKEN_DATA_STORE_FILE_NAME)
+            }
+        )
+    }
 
     @Provides
     @Singleton
-    fun providesGameDatastore(@ApplicationContext context: Context) = GameDatastore(context)
+    fun providesGameDatastore(@ApplicationContext context: Context): DataStore<GamePreferences> {
+        return DataStoreFactory.create(
+            serializer = GamePreferencesSerializer,
+            produceFile = {
+                context.dataStoreFile(GAME_DATA_STORE_FILE_NAME)
+            }
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun providesGameDatastoreRepository(
+        dataStore: DataStore<GamePreferences>
+    ): GamePreferencesRepository {
+        return GamePreferencesRepositoryImpl(dataStore)
+    }
+
+    @Provides
+    @Singleton
+    fun providesTokenDatastoreRepository(
+        dataStore: DataStore<TokenPreferences>
+    ): TokenPreferencesRepository {
+        return TokenPreferencesRepositoryImpl(dataStore)
+    }
 
 }

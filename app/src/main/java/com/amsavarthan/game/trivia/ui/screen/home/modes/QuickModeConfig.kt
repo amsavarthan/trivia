@@ -11,36 +11,38 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.amsavarthan.game.trivia.data.models.categories
-import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
-import com.amsavarthan.game.trivia.ui.common.anim.SlideOnChange
+import com.amsavarthan.game.trivia.ui.anim.SlideDirection
+import com.amsavarthan.game.trivia.ui.anim.SlideOnChange
 import com.amsavarthan.game.trivia.ui.navigation.AppScreen
 import com.amsavarthan.game.trivia.ui.navigation.createRoute
-import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
-import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
-import com.amsavarthan.game.trivia.viewmodel.QuickModeUIState
+import com.amsavarthan.game.trivia.ui.state.QuickModeUIState
+import com.amsavarthan.game.trivia.ui.viewmodel.GameViewModel
+import com.amsavarthan.game.trivia.ui.viewmodel.StartGameScreenViewModel
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 @Composable
 fun QuickModeConfig(
-    homeScreenViewModel: HomeScreenViewModel,
-    gameScreenViewModel: GameScreenViewModel,
+    mainViewModel: StartGameScreenViewModel = hiltViewModel(),
+    gameViewModel: GameViewModel = hiltViewModel(),
     navController: NavController
 ) {
 
     val context = LocalContext.current
-    val uiState by homeScreenViewModel.quickModeUIState.observeAsState(QuickModeUIState())
 
-    val energy by gameScreenViewModel.energy.observeAsState(0)
+    val uiState by mainViewModel.quickModeUIState
+    val energy by remember {
+        mutableStateOf(0)
+    }
 
     var lookingIndex by remember {
         if (uiState.selectedIndex < 0) return@remember mutableStateOf(Random.nextInt(categories.size))
@@ -64,7 +66,7 @@ fun QuickModeConfig(
             delay(380)
         }
 
-        homeScreenViewModel.updateQuickModeUIState(
+        mainViewModel.updateQuickModeUIState(
             QuickModeUIState(
                 selectedIndex = lookingIndex,
                 selectionState = QuickModeUIState.State.Finished
@@ -101,14 +103,13 @@ fun QuickModeConfig(
                         indication = null
                     ) {
                         if (energy <= 0) {
-                            navController.navigateUp()
                             Toast.makeText(context, "Insufficient Energy", Toast.LENGTH_SHORT)
                                 .show()
                             return@clickable
                         }
                         navController.navigate(
                             AppScreen.CountDown.createRoute(
-                                homeScreenViewModel.categoryId
+                                mainViewModel.categoryId
                             )
                         ) {
                             launchSingleTop = true

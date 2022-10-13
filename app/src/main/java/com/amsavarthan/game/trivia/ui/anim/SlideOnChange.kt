@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.ui.common.anim
+package com.amsavarthan.game.trivia.ui.anim
 
 import androidx.compose.animation.*
 import androidx.compose.runtime.Composable

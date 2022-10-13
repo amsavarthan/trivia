@@ -11,61 +11,63 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
-import com.amsavarthan.game.trivia.ui.common.anim.SlideOnChange
+import com.amsavarthan.game.trivia.ui.anim.SlideDirection
+import com.amsavarthan.game.trivia.ui.anim.SlideOnChange
+import com.amsavarthan.game.trivia.ui.common.QuestionsStatus
 import com.amsavarthan.game.trivia.ui.navigation.AppScreen
-import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
-import kotlinx.coroutines.delay
+import com.amsavarthan.game.trivia.ui.viewmodel.CountDownScreenViewModel
+import com.amsavarthan.game.trivia.ui.viewmodel.GameViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CountDownScreen(
-    viewModel: GameScreenViewModel,
+    countDownScreenViewModel: CountDownScreenViewModel = hiltViewModel(),
+    gameViewModel: GameViewModel,
     navController: NavController,
     categoryId: Int,
 ) {
 
     val context = LocalContext.current
-    val energy by viewModel.energy.observeAsState(0)
-    val isLoaded by viewModel.hasQuestionsLoaded.observeAsState(false)
-    var count by remember { mutableStateOf(3) }
+    val questionsStatus by gameViewModel.questionsStatus
+    val count by countDownScreenViewModel.count
 
-    LaunchedEffect(Unit) {
-
-        if (energy <= 0) {
-            navController.navigateUp()
-            Toast.makeText(context, "Insufficient Energy", Toast.LENGTH_SHORT).show()
-            return@LaunchedEffect
-        }
-
-        //for countdown
-        delay(900)
-        while (count != 0) {
-            count -= 1
-            delay(1000)
-        }
-
-        viewModel.getQuestions(categoryId)
-
+    LaunchedEffect(count) {
+        if (count == 0) gameViewModel.getQuestions(categoryId)
     }
 
-    LaunchedEffect(isLoaded) {
-        if (!isLoaded) return@LaunchedEffect
-        viewModel.decreaseEnergy()
-        navController.navigate(AppScreen.Game.route) {
-            launchSingleTop = true
-            popUpTo(AppScreen.CountDown.route) {
-                inclusive = true
+    LaunchedEffect(questionsStatus) {
+
+        when (questionsStatus) {
+            QuestionsStatus.Idle -> Unit
+            is QuestionsStatus.Failed -> {
+                val message = (questionsStatus as QuestionsStatus.Failed).message
+                gameViewModel.resetQuestionsStatus()
+                navController.navigateUp()
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+            QuestionsStatus.Loaded -> {
+                gameViewModel.resetQuestionsStatus()
+                gameViewModel.decreaseEnergy()
+                navController.navigate(AppScreen.Game.route) {
+                    launchSingleTop = true
+                    popUpTo(AppScreen.CountDown.route) {
+                        inclusive = true
+                    }
+                }
             }
         }
+
     }
 
     BackHandler {

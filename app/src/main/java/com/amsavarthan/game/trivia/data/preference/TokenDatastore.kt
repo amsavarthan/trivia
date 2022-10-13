@@ -1,35 +1,67 @@
 package com.amsavarthan.game.trivia.data.preference
 
-import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.Serializer
+import com.amsavarthan.game.trivia.TokenPreferences
+import com.google.protobuf.InvalidProtocolBufferException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import java.io.IOException
-import javax.inject.Inject
+import java.io.InputStream
+import java.io.OutputStream
 
-private const val TOKEN_PREFERENCES_NAME = "token_preferences"
-private val Context.datastore by preferencesDataStore(name = TOKEN_PREFERENCES_NAME)
+object TokenPreferencesSerializer : Serializer<TokenPreferences> {
+    override val defaultValue: TokenPreferences
+        get() = TokenPreferences.getDefaultInstance()
 
-class TokenDatastore @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
+    override suspend fun readFrom(input: InputStream): TokenPreferences {
+        try {
+            return TokenPreferences.parseFrom(input)
+        } catch (e: InvalidProtocolBufferException) {
+            throw CorruptionException("Cannot read proto", e)
+        }
+    }
 
-    private val dataStore = context.datastore
-    private val TOKEN = stringPreferencesKey("token")
+    override suspend fun writeTo(t: TokenPreferences, output: OutputStream) {
+        t.writeTo(output)
+    }
+}
 
-    val preferencesFlow: Flow<String> = dataStore.data.catch {
-        if (it !is IOException) throw it
-        it.printStackTrace()
-        emit(emptyPreferences())
-    }.map { preferences -> preferences[TOKEN] ?: "" }
+interface TokenPreferencesRepository : PreferencesRepository<TokenPreferences> {
+    suspend fun saveToken(token: String)
+    suspend fun clearToken()
+}
 
-    suspend fun saveTokenToPreferencesStore(token: String) {
-        dataStore.edit { preferences -> preferences[TOKEN] = token }
+class TokenPreferencesRepositoryImpl(
+    private val tokenPreferencesStore: DataStore<TokenPreferences>
+) : TokenPreferencesRepository {
+
+    override val preferencesFlow: Flow<TokenPreferences>
+        get() = tokenPreferencesStore.data
+            .catch { exception ->
+                if (exception is IOException) {
+                    emit(TokenPreferencesSerializer.defaultValue)
+                } else {
+                    throw exception
+                }
+            }
+
+    override suspend fun fetchInitialPreferences(): TokenPreferences {
+        return tokenPreferencesStore.data.first()
+    }
+
+    override suspend fun saveToken(token: String) {
+        tokenPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setSessionToken(token).build()
+        }
+    }
+
+    override suspend fun clearToken() {
+        tokenPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().clearSessionToken().build()
+        }
     }
 
 }

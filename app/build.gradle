@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id "com.google.protobuf" version "0.8.17"
 }
 
 android {
@@ -62,16 +63,13 @@ dependencies {
 
     //Core
     implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
     implementation 'androidx.activity:activity-compose:1.6.0'
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.compose.material3:material3:1.0.0-beta03'
     implementation 'androidx.compose.material:material-icons-extended:1.2.1'
 
-    implementation 'com.google.android.material:material:1.7.0-rc01'
-
-    implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
+    implementation 'com.google.android.material:material:1.8.0-alpha01'
 
     //Jetpack Navigation
     implementation "androidx.navigation:navigation-compose:2.5.2"
@@ -83,12 +81,18 @@ dependencies {
     //Firebase
     implementation platform("com.google.firebase:firebase-bom:29.0.0")
     implementation "com.google.firebase:firebase-auth-ktx"
+
     implementation "com.google.android.gms:play-services-auth:20.3.0"
 
     //Retrofit
-    implementation "com.squareup.retrofit2:retrofit:2.9.0"
-    implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
-    implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
+    def retrofit="2.9.0"
+
+    implementation "com.squareup.retrofit2:retrofit:$retrofit"
+    implementation "com.squareup.retrofit2:converter-moshi:$retrofit"
+
+    //OkHttp
+    implementation platform("com.squareup.okhttp3:okhttp-bom:4.10.0")
+    implementation "com.squareup.okhttp3:okhttp"
 
     //Moshi
     def moshi_version = "1.13.0"
@@ -98,14 +102,20 @@ dependencies {
 
     //WorkManager
     def work_version = "2.7.1"
-    def hilt_work_version = "1.0.0"
 
     implementation "androidx.work:work-runtime-ktx:$work_version"
+
+    //Hilt Additional
+    def hilt_work_version = "1.0.0"
+
     implementation "androidx.hilt:hilt-work:$hilt_work_version"
+    implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     kapt "androidx.hilt:hilt-compiler:$hilt_work_version"
 
+
     //Datastore
-    implementation "androidx.datastore:datastore-preferences:1.0.0"
+    implementation "androidx.datastore:datastore:1.0.0"
+    implementation "com.google.protobuf:protobuf-javalite:3.18.0"
 
     //Miscellaneous
     implementation "nl.dionsegijn:konfetti-compose:2.0.1"
@@ -117,7 +127,27 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
 
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.19.4"
+    }
+
+    // Generates the java Protobuf-lite code for the Protobufs in this project. See
+    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
+    // for more information.
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option 'lite'
+                }
+            }
+        }
+    }
 }
 
 kapt {

@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.ui.screen.home
+package com.amsavarthan.game.trivia.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
@@ -13,12 +13,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,80 +27,75 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.amsavarthan.game.trivia.viewmodel.ButtonState
-import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
-import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
+import com.amsavarthan.game.trivia.data.models.categories
+import com.amsavarthan.game.trivia.ui.common.ButtonState
+import com.amsavarthan.game.trivia.ui.navigation.AppScreen
+import com.amsavarthan.game.trivia.ui.navigation.createRoute
+import com.amsavarthan.game.trivia.ui.viewmodel.HomeScreenViewModel
+
+class HomeScreenState(
+    val navController: NavController,
+) {
+
+
+
+}
+
+@Composable
+private fun rememberUIState(
+    navController: NavController,
+) = remember(navController) {
+    HomeScreenState(navController)
+}
 
 @Composable
 fun HomeScreen(
-    homeScreenViewModel: HomeScreenViewModel,
-    gameScreenViewModel: GameScreenViewModel,
-    parentNavController: NavController
+    homeScreenViewModel: HomeScreenViewModel = hiltViewModel(),
+    navController: NavController
 ) {
 
-    val scrollState = rememberScrollState()
-    var buttonState by remember {
-        mutableStateOf<ButtonState>(ButtonState.Normal)
-    }
+    val uiState = rememberUIState(navController = navController)
 
-    val gamesPlayed by gameScreenViewModel.gamesPlayed.observeAsState(0)
-    val energy by gameScreenViewModel.energy.observeAsState(0)
+    val gamesPlayed by homeScreenViewModel.gamesPlayed
+    val energy by homeScreenViewModel.energy
 
     Box(modifier = Modifier.fillMaxHeight()) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             User(name = "Amsavarthan", gamesPlayed = gamesPlayed, energy = energy)
             Spacer(modifier = Modifier.height(16.dp))
         }
-        AnimatedContainer(
-            targetState = buttonState,
-            onExpandAction = {
-                buttonState = ButtonState.Expanded
-            },
-            collapsedContent = { CollapsedContent() },
-            expandedContent = {
-                StartGameScreen(
-                    homeScreenViewModel,
-                    gameScreenViewModel,
-                    parentNavController,
-                    onBack = {
-                        buttonState = ButtonState.Normal
-                    }
-                )
-            },
-        )
-    }
-}
 
-@Composable
-private fun CollapsedContent() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(
-            4.dp,
-            Alignment.CenterHorizontally
-        ),
-    ) {
-        Icon(imageVector = Icons.Filled.SportsEsports, contentDescription = "Play Game")
-        Text(text = "PLAY NOW", style = MaterialTheme.typography.labelLarge)
+        Button(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .widthIn(max = 500.dp)
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(24.dp),
+            onClick = {
+                navController.navigate(AppScreen.CountDown.createRoute(categories.random().id))
+            }
+        ) {
+            Icon(imageVector = Icons.Filled.SportsEsports, contentDescription = "Play Game")
+            Text(text = "PLAY NOW", style = MaterialTheme.typography.labelLarge)
+        }
     }
+
 }
 
 
 @Composable
-private fun BoxScope.AnimatedContainer(
-    targetState: ButtonState,
-    expandedContent: @Composable () -> Unit,
-    collapsedContent: @Composable () -> Unit,
-    onExpandAction: () -> Unit,
+private fun BoxScope.ExpandableButton(
+    buttonState: ButtonState,
+    onClick: () -> Unit,
 ) {
     val transition = updateTransition(
-        targetState,
+        buttonState,
         label = "Play Now Button Transition"
     )
 
@@ -155,18 +148,19 @@ private fun BoxScope.AnimatedContainer(
             .height(height)
             .navigationBarsPadding()
             .padding(padding)
+            .clip(RoundedCornerShape(corners))
             .clickable(
                 interactionSource = remember {
                     MutableInteractionSource()
                 },
-                indication = if (targetState == ButtonState.Normal) rememberRipple() else null,
-                onClick = onExpandAction
+                indication = if (buttonState == ButtonState.Normal) rememberRipple() else null,
+                onClick = onClick
             ),
         color = color,
-        shape = RoundedCornerShape(corners),
     ) {
+
         AnimatedVisibility(
-            visible = targetState == ButtonState.Normal,
+            visible = buttonState == ButtonState.Normal,
             enter = fadeIn(
                 animationSpec = tween(
                     delayMillis = 100,
@@ -174,10 +168,11 @@ private fun BoxScope.AnimatedContainer(
             ),
             exit = ExitTransition.None
         ) {
-            collapsedContent()
+
         }
+
         AnimatedVisibility(
-            visible = targetState == ButtonState.Expanded,
+            visible = buttonState == ButtonState.Expanded,
             enter = fadeIn(
                 animationSpec = tween(
                     delayMillis = 200,
@@ -185,7 +180,9 @@ private fun BoxScope.AnimatedContainer(
             ),
             exit = ExitTransition.None
         ) {
-            expandedContent()
+            Surface(modifier = Modifier.fillMaxSize()) {
+
+            }
         }
     }
 
@@ -253,6 +250,7 @@ private fun UserDetails(content: @Composable RowScope.() -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RowScope.UserDetailItem(
     shape: Shape = RectangleShape,
@@ -264,9 +262,9 @@ private fun RowScope.UserDetailItem(
         modifier = Modifier
             .weight(1f)
             .padding(paddingValues)
-            .height(100.dp)
-            .clickable { },
+            .height(100.dp),
         shape = shape,
+        onClick = {},
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Column(

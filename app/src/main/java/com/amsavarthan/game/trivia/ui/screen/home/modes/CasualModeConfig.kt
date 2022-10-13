@@ -17,7 +17,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -25,37 +24,41 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.amsavarthan.game.trivia.data.models.Category
 import com.amsavarthan.game.trivia.data.models.categories
-import com.amsavarthan.game.trivia.ui.common.anim.SlideDirection
-import com.amsavarthan.game.trivia.ui.common.anim.SlideOnChange
+import com.amsavarthan.game.trivia.ui.anim.SlideDirection
+import com.amsavarthan.game.trivia.ui.anim.SlideOnChange
 import com.amsavarthan.game.trivia.ui.navigation.AppScreen
 import com.amsavarthan.game.trivia.ui.navigation.createRoute
-import com.amsavarthan.game.trivia.viewmodel.CasualModeUIState
-import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
-import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
+import com.amsavarthan.game.trivia.ui.state.CasualModeUIState
+import com.amsavarthan.game.trivia.ui.viewmodel.GameViewModel
+import com.amsavarthan.game.trivia.ui.viewmodel.StartGameScreenViewModel
 
 @Composable
 fun CasualModeConfig(
-    homeScreenViewModel: HomeScreenViewModel,
-    gameScreenViewModel: GameScreenViewModel,
+    mainViewModel: StartGameScreenViewModel = hiltViewModel(),
+    gameViewModel: GameViewModel = hiltViewModel(),
     navController: NavController
 ) {
 
     val context = LocalContext.current
-    val energy by gameScreenViewModel.energy.observeAsState(0)
+    val energy by remember {
+        mutableStateOf(0)
+    }
 
-    val uiState by homeScreenViewModel.casualModeUIState.observeAsState(CasualModeUIState())
+    val uiState by mainViewModel.casualModeUIState
     var triggerStartGame by remember { mutableStateOf(false) }
 
     LaunchedEffect(triggerStartGame) {
         if (!triggerStartGame) return@LaunchedEffect
         if (energy <= 0) {
+            triggerStartGame = false
             Toast.makeText(context, "Insufficient Energy", Toast.LENGTH_SHORT).show()
             return@LaunchedEffect
         }
-        navController.navigate(AppScreen.CountDown.createRoute(homeScreenViewModel.categoryId)) {
+        navController.navigate(AppScreen.CountDown.createRoute(mainViewModel.categoryId)) {
             launchSingleTop = true
         }
     }
@@ -67,7 +70,7 @@ fun CasualModeConfig(
             SelectedCategoryDetail(uiState.selectedIndex, triggerStartGame)
             CategoryList(uiState.selectedIndex, triggerStartGame) { clickedIndex ->
                 triggerStartGame = (uiState.selectedIndex == clickedIndex)
-                homeScreenViewModel.updateCasualModeUIState(CasualModeUIState(clickedIndex))
+                mainViewModel.updateCasualModeUIState(CasualModeUIState(clickedIndex))
             }
         }
     }

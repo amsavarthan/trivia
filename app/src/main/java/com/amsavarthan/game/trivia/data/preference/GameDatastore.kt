@@ -1,67 +1,80 @@
 package com.amsavarthan.game.trivia.data.preference
 
-import android.content.Context
-import android.util.Log
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.Serializer
+import com.amsavarthan.game.trivia.GamePreferences
+import com.amsavarthan.game.trivia.config.Config.MAX_ENERGY
+import com.google.protobuf.InvalidProtocolBufferException
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import java.io.IOException
-import javax.inject.Inject
+import java.io.InputStream
+import java.io.OutputStream
 
-private const val GAME_PREFERENCES_NAME = "game_preferences"
-private val Context.datastore by preferencesDataStore(GAME_PREFERENCES_NAME)
+object GamePreferencesSerializer : Serializer<GamePreferences> {
+    override val defaultValue: GamePreferences
+        get() = GamePreferences.getDefaultInstance().toBuilder().setEnergy(MAX_ENERGY).build()
 
-class GameDatastore @Inject constructor(
-    @ApplicationContext context: Context
-) {
-
-    private val GAMES_PLAYED = intPreferencesKey("games_played")
-    private val ENERGY = intPreferencesKey("energy")
-
-    private val datastore = context.datastore
-
-    val gamesPlayedPreferencesFlow = datastore.data
-        .catch {
-            if (it !is IOException) throw it
-            it.printStackTrace()
-            emit(emptyPreferences())
-        }.map { preferences ->
-            preferences[GAMES_PLAYED] ?: 0
-        }
-
-    suspend fun incrementGamePlayCount() {
-        datastore.edit { preferences ->
-            preferences[GAMES_PLAYED] = (preferences[GAMES_PLAYED] ?: 0).inc()
+    override suspend fun readFrom(input: InputStream): GamePreferences {
+        try {
+            return GamePreferences.parseFrom(input)
+        } catch (e: InvalidProtocolBufferException) {
+            throw CorruptionException("Cannot read proto.", e)
         }
     }
 
-    val energyPreferencesFlow = datastore.data
-        .catch {
-            if (it !is IOException) throw it
-            it.printStackTrace()
-            emit(emptyPreferences())
-        }.map { preferences ->
-            preferences[ENERGY] ?: 5
-        }
-
-    suspend fun decreaseEnergy() {
-        datastore.edit { preferences ->
-            preferences[ENERGY] = (preferences[ENERGY] ?: 5).dec()
-        }
+    override suspend fun writeTo(t: GamePreferences, output: OutputStream) {
+        t.writeTo(output)
     }
 
-    suspend fun increaseEnergy() {
-        datastore.edit { preferences ->
-            val energy = preferences[ENERGY]
-            preferences[ENERGY] = when {
-                energy == null -> 1
-                energy < 5 -> energy.inc()
-                else -> return@edit
+}
+
+interface GamePreferencesRepository : PreferencesRepository<GamePreferences> {
+    suspend fun decreaseEnergy()
+    suspend fun increaseEnergy()
+    suspend fun increaseGamePlayCount()
+}
+
+class GamePreferencesRepositoryImpl(
+    private val gamePreferencesStore: DataStore<GamePreferences>
+) : GamePreferencesRepository {
+
+    override val preferencesFlow: Flow<GamePreferences>
+        get() = gamePreferencesStore.data
+            .catch { exception ->
+                if (exception is IOException) {
+                    emit(GamePreferencesSerializer.defaultValue)
+                } else {
+                    throw exception
+                }
             }
+
+    override suspend fun fetchInitialPreferences(): GamePreferences {
+        return gamePreferencesStore.data.first()
+    }
+
+    override suspend fun decreaseEnergy() {
+        gamePreferencesStore.updateData { prefs ->
+            var energy = prefs.energy - 1
+            if (energy < 0) energy = 0
+            prefs.toBuilder().setEnergy(energy).build()
+        }
+    }
+
+    override suspend fun increaseEnergy() {
+        gamePreferencesStore.updateData { prefs ->
+            var energy = prefs.energy + 1
+            if (energy > MAX_ENERGY) energy = MAX_ENERGY
+            prefs.toBuilder().setEnergy(energy).build()
+        }
+    }
+
+    override suspend fun increaseGamePlayCount() {
+        gamePreferencesStore.updateData { prefs ->
+            val gamesPlayed = prefs.gamesPlayed + 1
+            prefs.toBuilder().setGamesPlayed(gamesPlayed).build()
         }
     }
 

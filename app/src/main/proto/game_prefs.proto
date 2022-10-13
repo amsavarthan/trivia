@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option java_package = "com.amsavarthan.game.trivia";
+option java_multiple_files = true;
+
+message GamePreferences{
+  uint32 energy = 1;
+  uint32 games_played = 2;
+}

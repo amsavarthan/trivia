@@ -1,39 +1,30 @@
-package com.amsavarthan.game.trivia.viewmodel
+package com.amsavarthan.game.trivia.ui.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.amsavarthan.game.trivia.data.models.categories
+import com.amsavarthan.game.trivia.ui.state.CasualModeUIState
+import com.amsavarthan.game.trivia.ui.state.QuickModeUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-sealed class ButtonState {
-    object Expanded : ButtonState()
-    object Normal : ButtonState()
-}
-
-data class QuickModeUIState(
-    val selectionState: State = State.Running,
-    val selectedIndex: Int = -1
-) {
-    sealed class State {
-        object Running : State()
-        object Finished : State()
-    }
-}
-
-data class CasualModeUIState(
-    val selectedIndex: Int = 0
-)
-
 @HiltViewModel
-class HomeScreenViewModel @Inject constructor() : ViewModel() {
+class StartGameScreenViewModel @Inject constructor() : ViewModel() {
 
     var categoryId: Int = categories.first().id
         private set
 
-    private val _quickModeUIState = MutableLiveData(QuickModeUIState())
-    val quickModeUIState: LiveData<QuickModeUIState>
+    private val _isResetButtonVisible = mutableStateOf<Boolean>(false)
+    val isResetButtonVisible: State<Boolean>
+        get() = _isResetButtonVisible
+
+    fun makeResetButtonVisible(show: Boolean) {
+        _isResetButtonVisible.value = show
+    }
+
+    private var _quickModeUIState = mutableStateOf(QuickModeUIState())
+    val quickModeUIState: State<QuickModeUIState>
         get() = _quickModeUIState
 
     fun updateQuickModeUIState(state: QuickModeUIState) {
@@ -42,8 +33,8 @@ class HomeScreenViewModel @Inject constructor() : ViewModel() {
         categoryId = categories[state.selectedIndex].id
     }
 
-    private val _casualModeUIState = MutableLiveData(CasualModeUIState())
-    val casualModeUIState: LiveData<CasualModeUIState>
+    private var _casualModeUIState = mutableStateOf(CasualModeUIState())
+    val casualModeUIState: State<CasualModeUIState>
         get() = _casualModeUIState
 
     fun updateCasualModeUIState(state: CasualModeUIState) {
@@ -57,6 +48,3 @@ class HomeScreenViewModel @Inject constructor() : ViewModel() {
     }
 
 }
-
-
-

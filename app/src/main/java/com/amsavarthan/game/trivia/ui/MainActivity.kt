@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia
+package com.amsavarthan.game.trivia.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -20,9 +20,9 @@ import com.amsavarthan.game.trivia.ui.screen.CountDownScreen
 import com.amsavarthan.game.trivia.ui.screen.GameScreen
 import com.amsavarthan.game.trivia.ui.screen.ResultScreen
 import com.amsavarthan.game.trivia.ui.screen.home.HomeScreen
+import com.amsavarthan.game.trivia.ui.screen.home.StartGameScreen
 import com.amsavarthan.game.trivia.ui.theme.AppTheme
-import com.amsavarthan.game.trivia.viewmodel.GameScreenViewModel
-import com.amsavarthan.game.trivia.viewmodel.HomeScreenViewModel
+import com.amsavarthan.game.trivia.ui.viewmodel.GameViewModel
 import com.amsavarthan.game.trivia.worker.EnergyRefillWorker
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
@@ -30,8 +30,7 @@ import java.util.concurrent.TimeUnit
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val homeScreenViewModel: HomeScreenViewModel by viewModels()
-    private val gameScreenViewModel: GameScreenViewModel by viewModels()
+    private val gameViewModel: GameViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,13 +43,16 @@ class MainActivity : ComponentActivity() {
                     startDestination = AppScreen.Home.route
                 ) {
                     composable(AppScreen.Home.route) {
-                        HomeScreen(homeScreenViewModel, gameScreenViewModel, navController)
+                        HomeScreen(navController = navController)
+                    }
+                    composable(AppScreen.StartGame.route){
+                        StartGameScreen()
                     }
                     composable(AppScreen.Game.route) {
-                        GameScreen(gameScreenViewModel, navController)
+                        GameScreen(gameViewModel, navController)
                     }
                     composable(AppScreen.Result.route) {
-                        ResultScreen(gameScreenViewModel, navController)
+                        ResultScreen(gameViewModel, navController)
                     }
                     composable(
                         AppScreen.CountDown.route,
@@ -58,7 +60,11 @@ class MainActivity : ComponentActivity() {
                     ) {
                         val categoryId =
                             it.arguments?.getInt(ARG_CATEGORY_ID) ?: categories.first().id
-                        CountDownScreen(gameScreenViewModel, navController, categoryId)
+                        CountDownScreen(
+                            gameViewModel = gameViewModel,
+                            navController = navController,
+                            categoryId = categoryId
+                        )
                     }
                 }
             }

@@ -1,4 +1,4 @@
-package com.amsavarthan.game.trivia.data.models
+package com.amsavarthan.game.trivia.data.api.response
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
