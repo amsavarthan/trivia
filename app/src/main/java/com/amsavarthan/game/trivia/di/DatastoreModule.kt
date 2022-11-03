@@ -15,7 +15,6 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 private const val TOKEN_DATA_STORE_FILE_NAME = "token_prefs.proto"
-private const val GAME_DATA_STORE_FILE_NAME = "game_prefs.proto"
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -30,25 +29,6 @@ class DatastoreModule {
                 context.dataStoreFile(TOKEN_DATA_STORE_FILE_NAME)
             }
         )
-    }
-
-    @Provides
-    @Singleton
-    fun providesGameDatastore(@ApplicationContext context: Context): DataStore<GamePreferences> {
-        return DataStoreFactory.create(
-            serializer = GamePreferencesSerializer,
-            produceFile = {
-                context.dataStoreFile(GAME_DATA_STORE_FILE_NAME)
-            }
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun providesGameDatastoreRepository(
-        dataStore: DataStore<GamePreferences>
-    ): GamePreferencesRepository {
-        return GamePreferencesRepositoryImpl(dataStore)
     }
 
     @Provides

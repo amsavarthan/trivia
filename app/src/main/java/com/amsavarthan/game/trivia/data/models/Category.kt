@@ -7,7 +7,7 @@ data class Category(
     val forPro: Boolean = false
 )
 
-val categories = arrayOf(
+val categories = listOf(
     Category("🤓", "General Knowledge", 9),
     Category("📚", "Books", 10),
     Category("🎬", "Film", 11),

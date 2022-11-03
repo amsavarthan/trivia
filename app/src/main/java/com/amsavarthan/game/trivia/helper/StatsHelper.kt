@@ -1,7 +1,7 @@
 package com.amsavarthan.game.trivia.helper
 
-import com.amsavarthan.game.trivia.config.Config.CORRECT_WEIGHTAGE
-import com.amsavarthan.game.trivia.config.Config.STREAK_WEIGHTAGE
+import com.amsavarthan.game.trivia.config.CORRECT_WEIGHTAGE
+import com.amsavarthan.game.trivia.config.STREAK_WEIGHTAGE
 import com.amsavarthan.game.trivia.data.models.GameResult
 
 sealed class Stat(val name: String) {

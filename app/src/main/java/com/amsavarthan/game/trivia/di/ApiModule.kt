@@ -1,7 +1,7 @@
 package com.amsavarthan.game.trivia.di
 
 import android.content.Context
-import com.amsavarthan.game.trivia.config.Config.BASE_URL
+import com.amsavarthan.game.trivia.config.BASE_URL
 import com.amsavarthan.game.trivia.data.api.QuestionsAPI
 import com.amsavarthan.game.trivia.data.api.interceptor.NetworkInterceptor
 import com.amsavarthan.game.trivia.data.api.interceptor.TokenInterceptor

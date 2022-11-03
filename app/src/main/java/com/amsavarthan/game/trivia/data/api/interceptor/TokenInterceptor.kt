@@ -1,7 +1,7 @@
 package com.amsavarthan.game.trivia.data.api.interceptor
 
-import com.amsavarthan.game.trivia.config.Config.HOST
-import com.amsavarthan.game.trivia.config.Config.SCHEME
+import com.amsavarthan.game.trivia.config.HOST
+import com.amsavarthan.game.trivia.config.SCHEME
 import com.amsavarthan.game.trivia.data.api.response.QuestionsResponseJsonAdapter
 import com.amsavarthan.game.trivia.data.api.response.TokenResponseJsonAdapter
 import com.amsavarthan.game.trivia.data.preference.TokenPreferencesRepository
