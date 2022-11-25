@@ -10,8 +10,10 @@ import java.net.Socket
 
 object NetworkHelper {
 
+    //TODO(Uncomment later)
     fun isNetworkAvailable(context: Context) =
-        isConnectionAvailable(context) && isInternetAvailable()
+        isConnectionAvailable(context)
+//                && isInternetAvailable()
 
     private fun isConnectionAvailable(context: Context): Boolean {
         val connectivityManager = ContextCompat.getSystemService(

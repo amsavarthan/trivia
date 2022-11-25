@@ -1,6 +1,6 @@
 package com.amsavarthan.game.trivia.data.api.interceptor
 
-import com.amsavarthan.game.trivia.config.HOST
+import com.amsavarthan.game.trivia.config.TRIVIA_HOST
 import com.amsavarthan.game.trivia.config.SCHEME
 import com.amsavarthan.game.trivia.data.api.response.QuestionsResponseJsonAdapter
 import com.amsavarthan.game.trivia.data.api.response.TokenResponseJsonAdapter
@@ -45,7 +45,7 @@ class TokenInterceptor @Inject constructor(
     private fun Interceptor.Chain.proceedGettingNewToken(): Response {
         val url = HttpUrl.Builder()
             .scheme(SCHEME)
-            .host(HOST)
+            .host(TRIVIA_HOST)
             .addPathSegment("api_token.php")
             .addQueryParameter("command", "request")
             .build()
@@ -57,7 +57,7 @@ class TokenInterceptor @Inject constructor(
     private fun Interceptor.Chain.proceedResettingToken(token: String): Response {
         val url = HttpUrl.Builder()
             .scheme(SCHEME)
-            .host(HOST)
+            .host(TRIVIA_HOST)
             .addPathSegment("api_token.php")
             .addQueryParameter("command", "reset")
             .addQueryParameter("token", token)

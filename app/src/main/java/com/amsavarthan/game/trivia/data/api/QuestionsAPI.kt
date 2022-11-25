@@ -12,6 +12,6 @@ interface QuestionsAPI {
         @Query("category") categoryId: Int,
         @Query("amount") count: Int,
         @Query("type") type: String = "multiple",
-    ): Response<QuestionsResponse>
+    ): QuestionsResponse
 
 }
